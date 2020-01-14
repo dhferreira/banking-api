@@ -1,12 +1,12 @@
 use Mix.Config
 
 # Configure your database
-config :banking_api, BankingApi.Repo,
-  username: System.get_env("PGUSER"),
-  password: System.get_env("PGPASSWORD"),
-  database: System.get_env("PGDATABASE"),
-  hostname: System.get_env("PGHOST"),
-  post: System.get_env("PGPORT"),
+  config :banking_api, BankingApi.Repo,
+  username: "postgres",
+  password: "hu+WyM2-x7n^pRMQ",
+  database: "banking",
+  hostname: "35.198.42.120",
+  port: 5432,
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
@@ -17,3 +17,4 @@ config :banking_api, BankingApiWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+config :bcrypt_elixir, :log_rounds, 4

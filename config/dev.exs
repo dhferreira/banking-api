@@ -2,14 +2,12 @@ use Mix.Config
 
 # Configure your database
 config :banking_api, BankingApi.Repo,
-  username: System.get_env("PGUSER"),
-  password: System.get_env("PGPASSWORD"),
-  database: System.get_env("PGDATABASE"),
-  hostname: System.get_env("PGHOST"),
-  port: System.get_env("PGPORT"),
+  username: "postgres",
+  password: "hu+WyM2-x7n^pRMQ",
+  database: "banking",
+  hostname: "35.198.42.120",
+  port: 5432,
   show_sensitive_data_on_connection_error: true,
-  queue_target: 300,
-  queue_interval: 6000,
   pool_size: 10
 
 # For development, we disable any cache and enable
@@ -20,7 +18,7 @@ config :banking_api, BankingApi.Repo,
 # with webpack to recompile .js and .css sources.
 config :banking_api, BankingApiWeb.Endpoint,
   http: [port: 4000],
-  debug_errors: true,
+  debug_errors: false,
   code_reloader: true,
   check_origin: false,
   watchers: []

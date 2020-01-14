@@ -14,7 +14,7 @@ if ! (psql -lqtA | grep -q "^$PGDATABASE|"); then
   echo "Database $PGDATABASE created."
 fi
 
+mix deps.get
 mix ecto.migrate
-#exec mix ecto.migrate
 
 exec mix phx.server

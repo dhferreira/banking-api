@@ -7,5 +7,6 @@ defmodule BankingApiWeb.Router do
 
   scope "/api", BankingApiWeb do
     pipe_through :api
+    resources "/users", UserController, except: [:new, :edit]
   end
 end
