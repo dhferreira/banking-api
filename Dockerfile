@@ -1,15 +1,13 @@
 FROM elixir:latest
 
 RUN apt-get update && \
-  apt-get install -y postgresql-client
+  apt-get install -y build-essential inotify-tools postgresql-client
 
-RUN mkdir /app
-COPY . /app
-WORKDIR /app
-
+# Install Phoenix packages
 RUN mix local.hex --force
 RUN mix local.rebar --force
+RUN mix archive.install --force https://github.com/phoenixframework/archives/raw/master/phx_new.ez
 
-RUN mix do compile
+WORKDIR /app
 
-CMD ["/app/entrypoint.sh"]
+EXPOSE 4000

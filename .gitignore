@@ -27,4 +27,6 @@ banking_api-*.tar
 # this depending on your deployment strategy.
 /priv/static/
 
+/.elixir_ls
+
 .env

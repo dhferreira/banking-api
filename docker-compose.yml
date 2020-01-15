@@ -1,29 +1,28 @@
-version: '3'
+version: '3.2'
 
 services:
   phoenix:
-    build:
-      context: .
-    environment:
-      PGUSER: postgres
-      PGPASSWORD: postgres
-      PGDATABASE: banking
-      PGPORT: 5432
-      PGHOST: db
+    build: .
+    volumes:
+      - type: bind
+        source: .
+        target: /app
     ports:
       - "4000:4000"
-    depends_on:
-      - db
-  
-  db:
-    image: postgres:9.6
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      PGDATA: /var/lib/postgresql/data/pgdata 
-    restart: always
-    volumes: 
-      - /var/lib/postgresql/data
+    #depends_on:
+    #  - db
+    command:
+      - ./run.sh
 
-volumes:
-  pgdata:
+  #db:
+  #  image: postgres:9.6
+  #  environment:
+  #    POSTGRES_USER: postgres
+  #    POSTGRES_PASSWORD: postgres
+  #    PGDATA: /var/lib/postgresql/data/pgdata
+  #  restart: always
+  #  volumes:
+  #    - /var/lib/postgresql/data
+
+#volumes:
+#  pgdata:

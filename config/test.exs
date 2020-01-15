@@ -1,10 +1,10 @@
 use Mix.Config
 
 # Configure your database
-  config :banking_api, BankingApi.Repo,
+config :banking_api, BankingApi.Repo,
   username: "postgres",
   password: "hu+WyM2-x7n^pRMQ",
-  database: "banking",
+  database: "banking_hmg",
   hostname: "35.198.42.120",
   port: 5432,
   pool: Ecto.Adapters.SQL.Sandbox
