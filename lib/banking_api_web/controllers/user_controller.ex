@@ -1,8 +1,10 @@
 defmodule BankingApiWeb.UserController do
   use BankingApiWeb, :controller
+  require Logger
 
   alias BankingApi.Auth
   alias BankingApi.Auth.User
+  alias BankingApi.Auth.Guardian
 
   action_fallback BankingApiWeb.FallbackController
 
@@ -12,11 +14,13 @@ defmodule BankingApiWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, %User{} = user} <- Auth.create_user(user_params) do
+    with {:ok, %User{} = user} <- Auth.create_user(user_params),
+    {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
+
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.user_path(conn, :show, user))
-      |> render("show.json", user: user)
+      |> render("show.json", %{user: user, token: token})
     end
   end
 
@@ -38,6 +42,14 @@ defmodule BankingApiWeb.UserController do
 
     with {:ok, %User{}} <- Auth.delete_user(user) do
       send_resp(conn, :no_content, "")
+    end
+  end
+
+  def signin(conn, %{"email" => email, "password" => password}) do
+    with {:ok, user, token} <- Guardian.authenticate(email, password) do
+      conn
+      |> put_status(:ok)
+      |> render("user.json", %{user: user, token: token})
     end
   end
 end

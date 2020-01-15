@@ -18,7 +18,8 @@ defmodule BankingApi.Auth do
 
   """
   def list_users do
-    Repo.all(User)
+    User
+    |> Repo.all()
   end
 
   @doc """
@@ -35,7 +36,29 @@ defmodule BankingApi.Auth do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    User
+    |> Repo.get!(id)
+  end
+
+  @doc """
+  Gets a single user by its email.
+
+  Raises `Ecto.NoResultsError` if the User does not exist.
+
+  ## Examples
+
+      iex> get_user_by_email!("teste@teste.com")
+      %User{}
+
+      iex> get_user!("usuario@teste.com")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_user_by_email(email) do
+    User
+    |> Repo.get_by(email: email)
+  end
 
   @doc """
   Creates a user.

@@ -9,8 +9,8 @@ mix ecto.create
 mix ecto.migrate
 
 # Test if installation is OK
-echo "\nTesting the installation..."
-mix test
+#echo "\nTesting the installation..."
+#mix test
 
 #Start Phoenix Server if everything is OK
 echo "\n Launching Phoenix web server..."

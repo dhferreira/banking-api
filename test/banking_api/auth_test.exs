@@ -6,11 +6,11 @@ defmodule BankingApi.AuthTest do
   describe "users" do
     alias BankingApi.Auth.User
 
-    @valid_attrs %{email: "some email", is_active: true, name: "some name", password: "some password"}
+    @valid_attrs %{email: "email@email.com.br", is_active: true, name: "some name", password: "some password"}
     @update_attrs %{
-      email: "some updated email", 
-      is_active: false, 
-      name: "some updated name", 
+      email: "email.updated@email.com.br",
+      is_active: false,
+      name: "some updated name",
       password: "some updated password"
     }
     @invalid_attrs %{email: nil, is_active: nil, name: nil, password: nil}
@@ -36,7 +36,7 @@ defmodule BankingApi.AuthTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Auth.create_user(@valid_attrs)
-      assert user.email == "some email"
+      assert user.email == "email@email.com.br"
       assert user.is_active == true
       assert user.name == "some name"
     end
@@ -48,7 +48,7 @@ defmodule BankingApi.AuthTest do
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Auth.update_user(user, @update_attrs)
-      assert user.email == "some updated email"
+      assert user.email == "email.updated@email.com.br"
       assert user.is_active == false
       assert user.name == "some updated name"
     end

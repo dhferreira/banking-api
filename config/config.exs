@@ -29,3 +29,8 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+# Configures Guardian
+config :banking_api, BankingApi.Auth.Guardian,
+  issuer: "banking_api",
+  secret_key: "oK7PaUGyaYSlHKDrfESpqWquLt12CoSgihxjcpM/nCFyj8gT1Y88/rVl62s9enJL"

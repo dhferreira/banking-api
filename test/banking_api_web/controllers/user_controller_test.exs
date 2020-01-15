@@ -6,13 +6,13 @@ defmodule BankingApiWeb.UserControllerTest do
 
   @create_attrs %{
     name: "some name",
-    email: "some email",
+    email: "email@email.com.br",
     password: "some password",
     is_active: true,
   }
   @update_attrs %{
     name: "some updated name",
-    email: "some updated email",
+    email: "email_updated@email.com.br",
     password: "some updated password",
     is_active: false,
   }
@@ -37,13 +37,19 @@ defmodule BankingApiWeb.UserControllerTest do
   describe "create user" do
     test "renders user when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{
+        "id" => id,
+        "email" => "email@email.com.br",
+        "name" => "some name",
+        "is_active" => true,
+        "token" => token
+      } = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.user_path(conn, :show, id))
 
       assert %{
                "id" => id,
-               "email" => "some email",
+               "email" => "email@email.com.br",
                "is_active" => true,
              } = json_response(conn, 200)["data"]
     end
@@ -65,7 +71,7 @@ defmodule BankingApiWeb.UserControllerTest do
 
       assert %{
                "id" => id,
-               "email" => "some updated email",
+               "email" => "email_updated@email.com.br",
                "is_active" => false,
              } = json_response(conn, 200)["data"]
     end
