@@ -14,6 +14,7 @@ defmodule BankingApiWeb.ConnCase do
   by setting `use BankingApiWeb.ConnCase, async: true`, although
   this option is not recommendded for other databases.
   """
+  alias Ecto.Adapters.SQL.Sandbox
 
   use ExUnit.CaseTemplate
 
@@ -29,10 +30,10 @@ defmodule BankingApiWeb.ConnCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(BankingApi.Repo)
+    :ok = Sandbox.checkout(BankingApi.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(BankingApi.Repo, {:shared, self()})
+      Sandbox.mode(BankingApi.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

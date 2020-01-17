@@ -1,10 +1,13 @@
 defmodule BankingApiWeb.UserController do
+  @moduledoc """
+  User controller
+  """
   use BankingApiWeb, :controller
   require Logger
 
   alias BankingApi.Auth
-  alias BankingApi.Auth.User
   alias BankingApi.Auth.Guardian
+  alias BankingApi.Auth.User
 
   action_fallback BankingApiWeb.FallbackController
 
@@ -15,8 +18,7 @@ defmodule BankingApiWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Auth.create_user(user_params),
-    {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
-
+         {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.user_path(conn, :show, user))

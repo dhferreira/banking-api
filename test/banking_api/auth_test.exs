@@ -6,7 +6,12 @@ defmodule BankingApi.AuthTest do
   describe "users" do
     alias BankingApi.Auth.User
 
-    @valid_attrs %{email: "email@email.com.br", is_active: true, name: "some name", password: "some password"}
+    @valid_attrs %{
+      email: "email@email.com.br",
+      is_active: true,
+      name: "some name",
+      password: "some password"
+    }
     @update_attrs %{
       email: "email.updated@email.com.br",
       is_active: false,

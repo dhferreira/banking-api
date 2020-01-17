@@ -1,4 +1,7 @@
 defmodule BankingApi.Auth.Guardian do
+  @moduledoc """
+  Guardian functions for authentication
+  """
   use Guardian, otp_app: :banking_api
 
   alias BankingApi.Auth
@@ -14,12 +17,12 @@ defmodule BankingApi.Auth.Guardian do
     {:ok, resource}
   end
 
-
   def authenticate(email, password) do
     with {:ok, user} <- Auth.get_user_by_email(email) do
       case check_password(user, password) do
         true ->
           create_token(user)
+
         false ->
           {:error, :unauthorized}
       end
@@ -34,5 +37,4 @@ defmodule BankingApi.Auth.Guardian do
     {:ok, token, _claims} = Guardian.encode_and_sign(user)
     {:ok, user, token}
   end
-
 end
