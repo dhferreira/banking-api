@@ -1,4 +1,7 @@
 defmodule BankingApi.Auth.Guardian do
+  @moduledoc """
+  Guardian functions for authentication
+  """
   use Guardian, otp_app: :banking_api
 
   require Logger
@@ -17,7 +20,6 @@ defmodule BankingApi.Auth.Guardian do
       user -> {:ok, user}
     end
   end
-
 
   def authenticate(email, password) do
     case Auth.get_user_by_email(email) do

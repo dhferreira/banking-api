@@ -1,4 +1,7 @@
 defmodule BankingApi.Auth.User do
+  @moduledoc """
+  User Schema
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -21,7 +24,7 @@ defmodule BankingApi.Auth.User do
     user
     |> cast(attrs, [:name, :email, :is_active, :password])
     |> validate_required([:name, :email, :password])
-    |> validate_format(:email,  ~r/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/)
+    |> validate_format(:email, ~r/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/)
     |> validate_length(:password, min: 6)
     |> unique_constraint(:email)
     |> put_password_hash()
@@ -35,5 +38,5 @@ defmodule BankingApi.Auth.User do
 
   defp put_password_hash(changeset) do
     changeset
-   end
+  end
 end

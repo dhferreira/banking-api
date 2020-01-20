@@ -30,3 +30,5 @@ banking_api-*.tar
 /.elixir_ls
 
 .env
+
+/.vscode/
