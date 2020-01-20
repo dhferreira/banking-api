@@ -1,6 +1,9 @@
 defmodule BankingApi.Auth.Guardian do
   use Guardian, otp_app: :banking_api
 
+  require Logger
+
+  alias Argon2
   alias BankingApi.Auth
 
   def subject_for_token(user, _claims) do
@@ -8,31 +11,26 @@ defmodule BankingApi.Auth.Guardian do
     {:ok, sub}
   end
 
-  def resource_from_claims(claims) do
-    id = claims["sub"]
-    resource = Auth.get_user!(id)
-    {:ok, resource}
+  def resource_from_claims(%{"sub" => id}) do
+    case Auth.get_user(id) do
+      nil -> {:erro, :resource_not_found}
+      user -> {:ok, user}
+    end
   end
 
 
   def authenticate(email, password) do
-    with {:ok, user} <- Auth.get_user_by_email(email) do
-      case check_password(user, password) do
-        true ->
-          create_token(user)
-        false ->
-          {:error, :unauthorized}
-      end
+    case Auth.get_user_by_email(email) do
+      {:error, :not_found} ->
+        {:error, :unauthorized}
+      {:ok, user} ->
+        case Argon2.check_pass(user, password) do
+          {:error, _msg} ->
+            {:error, :unauthorized}
+          {:ok, user} ->
+            {:ok, token, _claims} = encode_and_sign(user)
+            {:ok, user, token}
+        end
     end
   end
-
-  defp check_password(user, password) do
-    Argon2.check_pass(user, password)
-  end
-
-  defp create_token(user) do
-    {:ok, token, _claims} = Guardian.encode_and_sign(user)
-    {:ok, user, token}
-  end
-
 end

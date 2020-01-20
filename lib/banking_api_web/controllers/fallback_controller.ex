@@ -16,6 +16,7 @@ defmodule BankingApiWeb.FallbackController do
   def call(conn, {:error, :unauthorized}) do
     conn
     |> put_status(:unauthorized)
+    |> put_view(BankingApiWeb.ErrorView)
     |> render(:"401")
   end
 

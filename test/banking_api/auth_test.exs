@@ -34,6 +34,16 @@ defmodule BankingApi.AuthTest do
       assert Auth.get_user!(user.id) == user
     end
 
+    test "get_user/1 returns the user with given id" do
+      user = user_fixture()
+      assert Auth.get_user(user.id) == user
+    end
+
+    test "get_user_by_email/1 returns the user with given id" do
+      user = user_fixture()
+      assert Auth.get_user_by_email(user.email) == user
+    end
+
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Auth.create_user(@valid_attrs)
       assert user.email == "email@email.com.br"

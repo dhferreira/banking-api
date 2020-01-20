@@ -2,7 +2,7 @@ defmodule BankingApi.Auth do
   @moduledoc """
   The Auth context.
   """
-
+  require Logger
   import Ecto.Query, warn: false
   alias BankingApi.Repo
 
@@ -42,9 +42,28 @@ defmodule BankingApi.Auth do
   end
 
   @doc """
+  Gets a single user.
+
+  Return nil if the User does not exist.
+
+  ## Examples
+
+      iex> get_user(123)
+      %User{}
+
+      iex> get_user(456)
+      nil
+
+  """
+  def get_user(id) do
+    User
+    |> Repo.get(id)
+  end
+
+  @doc """
   Gets a single user by its email.
 
-  Raises `Ecto.NoResultsError` if the User does not exist.
+  Raises `Ecto.NoResultsError` if the User with specified email does not exist.
 
   ## Examples
 
@@ -57,7 +76,7 @@ defmodule BankingApi.Auth do
   """
   def get_user_by_email(email) do
     User
-    |> Repo.get_by(email: email)
+    |>Repo.get_by(User, email: email)
   end
 
   @doc """

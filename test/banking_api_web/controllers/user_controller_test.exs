@@ -17,6 +17,14 @@ defmodule BankingApiWeb.UserControllerTest do
     is_active: false,
   }
   @invalid_attrs %{email: nil, is_active: nil, name: nil}
+  @valid_credentials %{
+    email: "email@email.com.br",
+    password: "some password",
+  }
+  @invalid_credentials %{
+    email: "email@email.com.br",
+    password: "some wrong password",
+  }
 
   def fixture(:user) do
     {:ok, user} = Auth.create_user(@create_attrs)
@@ -92,6 +100,20 @@ defmodule BankingApiWeb.UserControllerTest do
       assert_error_sent 404, fn ->
         get(conn, Routes.user_path(conn, :show, user))
       end
+    end
+  end
+
+  describe "signin" do
+    setup [:create_user]
+
+    test "given valid credentials", %{conn: conn} do
+      conn = post(conn, Routes.user_path(conn, :signin), @valid_credentials)
+      assert response(conn, 200)
+    end
+
+    test "given invalid credentials or missing parameters (email and/or password)", %{conn: conn} do
+      conn = post(conn, Routes.user_path(conn, :signin), @invalid_credentials)
+      assert response(conn, 401)
     end
   end
 
