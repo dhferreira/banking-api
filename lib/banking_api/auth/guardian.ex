@@ -22,17 +22,17 @@ defmodule BankingApi.Auth.Guardian do
   end
 
   def authenticate(email, password) do
-    case Auth.get_user_by_email(email) do
-      {:error, :not_found} ->
-        {:error, :unauthorized}
-      {:ok, user} ->
-        case Argon2.check_pass(user, password) do
-          {:error, _msg} ->
-            {:error, :unauthorized}
-          {:ok, user} ->
-            {:ok, token, _claims} = encode_and_sign(user)
-            {:ok, user, token}
-        end
+    user = Auth.get_user_by_email(email)
+    if user do
+      case Argon2.check_pass(user, password) do
+        {:error, _msg} ->
+          {:error, :unauthorized}
+        {:ok, user} ->
+          {:ok, token, _claims} = encode_and_sign(user)
+          {:ok, user, token}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 end

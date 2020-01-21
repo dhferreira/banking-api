@@ -17,12 +17,18 @@ defmodule BankingApiWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, %User{} = user} <- Auth.create_user(user_params),
-         {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.user_path(conn, :show, user))
-      |> render("show.json", %{user: user, token: token})
+    case Auth.create_user(user_params) do
+      # Create OK, generates access token(JWT)
+      {:ok, %{user: user, account: account}} ->
+        with {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
+          conn
+            |> put_status(:created)
+            |> put_resp_header("location", Routes.user_path(conn, :show, user))
+            |> render("show.json", %{user: user, token: token, account: account})
+        end
+      # Create failed
+      {:error, _entity, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 

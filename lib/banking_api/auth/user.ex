@@ -15,7 +15,7 @@ defmodule BankingApi.Auth.User do
     field :name, :string
     field :password, :string, virtual: true
     field :password_hash, :string
-
+    has_one :account, BankingApi.Banking.Account
     timestamps()
   end
 

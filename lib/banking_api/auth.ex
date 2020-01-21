@@ -2,12 +2,14 @@ defmodule BankingApi.Auth do
   @moduledoc """
   The Auth context.
   """
-  require Logger
   import Ecto.Query, warn: false
+
   alias BankingApi.Repo
-
   alias BankingApi.Auth.User
+  alias BankingApi.Banking
+  alias Ecto.Multi
 
+  require Logger
   @doc """
   Returns the list of users.
 
@@ -63,20 +65,20 @@ defmodule BankingApi.Auth do
   @doc """
   Gets a single user by its email.
 
-  Raises `Ecto.NoResultsError` if the User with specified email does not exist.
+  Returns nil if the User with specified email does not exist.
 
   ## Examples
 
-      iex> get_user_by_email!("teste@teste.com")
+      iex> get_user_by_email("teste@teste.com")
       %User{}
 
-      iex> get_user!("usuario@teste.com")
+      iex> get_user("usuario@teste.com")
       ** (Ecto.NoResultsError)
 
   """
   def get_user_by_email(email) do
     User
-    |>Repo.get_by(User, email: email)
+    |>Repo.get_by(email: email)
   end
 
   @doc """
@@ -91,10 +93,18 @@ defmodule BankingApi.Auth do
       {:error, %Ecto.Changeset{}}
 
   """
+  # def create_user(attrs \\ %{}) do
+  #   %User{}
+  #   |> User.changeset(attrs)
+  #   |> Repo.insert()
+  # end
   def create_user(attrs \\ %{}) do
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
+    Multi.new()
+    |> Multi.insert(:user, User.changeset(%User{}, attrs))
+    |> Multi.run(:account, fn banking, %{user: user} ->
+        Banking.create_account(user, %{balance: 100.00})
+      end)
+    |> Repo.transaction()
   end
 
   @doc """

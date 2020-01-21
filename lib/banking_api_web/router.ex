@@ -1,6 +1,9 @@
 defmodule BankingApiWeb.Router do
   use BankingApiWeb, :router
-  require Logger
+
+  pipeline :auth do
+    plug BankingApiWeb.Auth.Pipeline
+  end
 
   pipeline :api do
     plug :accepts, ["json"]
@@ -8,7 +11,12 @@ defmodule BankingApiWeb.Router do
 
   scope "/api", BankingApiWeb do
     pipe_through :api
-    resources "/users", UserController, except: [:new, :edit]
     post "/users/signin", UserController, :signin
+    post "/users/", UserController, :create
+  end
+
+  scope "/api", BankingApiWeb do
+    pipe_through [:api, :auth]
+    resources "/users", UserController, except: [:new, :edit, :create]
   end
 end
