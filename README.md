@@ -1,19 +1,21 @@
 # BankingApi
 
-To start your Phoenix server:
+Example of Banking API using Elixir language.
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server`
+## Requirements
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+- Docker Compose: https://docs.docker.com/compose/install/
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Running in Development Environment
+
+1. Run `docker-compose up --build`
+
+Now you can access the api through [`localhost:4000`](http://localhost:4000)
 
 ## Learn more
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+- Official website: http://www.phoenixframework.org/
+- Guides: https://hexdocs.pm/phoenix/overview.html
+- Docs: https://hexdocs.pm/phoenix
+- Mailing list: http://groups.google.com/group/phoenix-talk
+- Source: https://github.com/phoenixframework/phoenix
