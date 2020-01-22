@@ -19,7 +19,6 @@ defmodule BankingApiWeb.ErrorView do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end
 
-
   def template_unprocessable_entity(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end

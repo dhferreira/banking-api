@@ -4,9 +4,9 @@ defmodule BankingApi.Auth do
   """
   import Ecto.Query, warn: false
 
-  alias BankingApi.Repo
   alias BankingApi.Auth.User
   alias BankingApi.Banking
+  alias BankingApi.Repo
   alias Ecto.Multi
 
   require Logger

@@ -21,7 +21,7 @@ defmodule BankingApiWeb.UserController do
       # Create OK, generates access token(JWT)
       {:ok, %{user: user, account: account}} ->
 
-        perms = %{ default: [:banking]} #set default permissions
+        perms = %{default: [:banking]} #set default permissions
         if user.permission === "ADMIN" do
           Map.put(perms, :admin, [:backoffice])
         end

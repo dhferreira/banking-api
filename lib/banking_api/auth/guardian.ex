@@ -29,11 +29,14 @@ defmodule BankingApi.Auth.Guardian do
     end
   end
 
-  def all_permissions?(userPermissions, checkPermissions) do
-    Enum.all?(Map.keys(checkPermissions),
+  def all_permissions?(user_permissions, check_permissions) do
+    Enum.all?(Map.keys(check_permissions),
       fn role ->
-        if Map.has_key?(userPermissions, Atom.to_string(role)) do
-          Enum.all?(Map.get(checkPermissions, role), fn permission -> Enum.member?(Map.get(userPermissions, Atom.to_string(role)), Atom.to_string(permission)) end)
+        if Map.has_key?(user_permissions, Atom.to_string(role)) do
+          Enum.all?(Map.get(check_permissions, role),
+            fn permission ->
+              Enum.member?(Map.get(user_permissions, Atom.to_string(role)), Atom.to_string(permission))
+            end)
         else
           false
         end
@@ -50,9 +53,9 @@ defmodule BankingApi.Auth.Guardian do
         {:ok, user} ->
           perms =
             if user.permission === "ADMIN" do
-              %{ default: [:banking], admin: [:backoffice]}
+              %{default: [:banking], admin: [:backoffice]}
             else
-              %{ default: [:banking]}
+              %{default: [:banking]}
             end
 
             {:ok, token, _claims} = encode_and_sign(user, perms: perms)
