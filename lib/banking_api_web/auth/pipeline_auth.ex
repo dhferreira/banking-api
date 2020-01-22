@@ -1,4 +1,4 @@
-defmodule BankingApiWeb.Auth.Pipeline do
+defmodule BankingApiWeb.Auth.PipelineAuth do
   use Guardian.Plug.Pipeline, otp_app: :banking_api,
     module: BankingApi.Auth.Guardian,
     error_handler: BankingApiWeb.Auth.ErrorHandler

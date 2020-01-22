@@ -22,6 +22,7 @@ defmodule BankingApiWeb.UserView do
       name: user.name,
       email: user.email,
       is_active: user.is_active,
+      permission: user.permission,
       token: token,
       account: %{
         id: account.id,
@@ -36,6 +37,7 @@ defmodule BankingApiWeb.UserView do
       name: user.name,
       email: user.email,
       is_active: user.is_active,
+      permission: user.permission,
       token: token
     }
   end
@@ -45,7 +47,8 @@ defmodule BankingApiWeb.UserView do
       id: user.id,
       name: user.name,
       email: user.email,
-      is_active: user.is_active
+      is_active: user.is_active,
+      permission: user.permission
     }
   end
 end

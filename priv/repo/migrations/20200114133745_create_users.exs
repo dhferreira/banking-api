@@ -7,7 +7,8 @@ defmodule BankingApi.Repo.Migrations.CreateUsers do
       add :name, :string
       add :email, :string, null: false
       add :password_hash, :string
-      add :is_active, :boolean, default: true, null: false
+      add :is_active, :boolean, default: true
+      add :permission, :string, default: "DEFAULT"
 
       timestamps()
     end

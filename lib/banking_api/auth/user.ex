@@ -15,6 +15,7 @@ defmodule BankingApi.Auth.User do
     field :name, :string
     field :password, :string, virtual: true
     field :password_hash, :string
+    field :permission, :string, default: "DEFAULT"
     has_one :account, BankingApi.Banking.Account
     timestamps()
   end
@@ -22,10 +23,11 @@ defmodule BankingApi.Auth.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :email, :is_active, :password])
+    |> cast(attrs, [:name, :email, :is_active, :password, :permission])
     |> validate_required([:name, :email, :password])
     |> validate_format(:email, ~r/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/)
     |> validate_length(:password, min: 6)
+    |> validate_inclusion(:permission, ["ADMIN", "DEFAULT"])
     |> unique_constraint(:email)
     |> put_password_hash()
   end

@@ -20,7 +20,15 @@ defmodule BankingApiWeb.UserController do
     case Auth.create_user(user_params) do
       # Create OK, generates access token(JWT)
       {:ok, %{user: user, account: account}} ->
-        with {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
+
+        perms = %{ default: [:banking]} #set default permissions
+        if user.permission === "ADMIN" do
+          Map.put(perms, :admin, [:backoffice])
+        end
+
+        Logger.debug(perms)
+
+        with {:ok, token, _claims} <- Guardian.encode_and_sign(user, perms: perms) do
           conn
             |> put_status(:created)
             |> put_resp_header("location", Routes.user_path(conn, :show, user))
