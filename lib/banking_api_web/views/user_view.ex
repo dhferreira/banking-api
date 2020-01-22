@@ -48,7 +48,11 @@ defmodule BankingApiWeb.UserView do
       name: user.name,
       email: user.email,
       is_active: user.is_active,
-      permission: user.permission
+      permission: user.permission,
+      account: %{
+        id: user.account.id,
+        balance: user.account.balance
+      }
     }
   end
 end

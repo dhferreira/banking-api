@@ -22,6 +22,7 @@ defmodule BankingApi.Auth do
   def list_users do
     User
     |> Repo.all()
+    |> Repo.preload([:account])
   end
 
   @doc """
@@ -41,6 +42,7 @@ defmodule BankingApi.Auth do
   def get_user!(id) do
     User
     |> Repo.get!(id)
+    |> Repo.preload([:account])
   end
 
   @doc """
@@ -60,6 +62,7 @@ defmodule BankingApi.Auth do
   def get_user(id) do
     User
     |> Repo.get(id)
+    |> Repo.preload([:account])
   end
 
   @doc """
@@ -78,7 +81,8 @@ defmodule BankingApi.Auth do
   """
   def get_user_by_email(email) do
     User
-    |>Repo.get_by(email: email)
+    |> Repo.get_by(email: email)
+    |> Repo.preload([:account])
   end
 
   @doc """
@@ -123,6 +127,7 @@ defmodule BankingApi.Auth do
     user
     |> User.changeset(attrs)
     |> Repo.update()
+    |> Repo.preload([:account])
   end
 
   @doc """

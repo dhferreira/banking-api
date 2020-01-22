@@ -26,7 +26,7 @@ defmodule BankingApiWeb.Router do
   end
 
   scope "/api/backoffice", BankingApiWeb do
-    pipe_through [:api, :admin]
+    pipe_through [:api, :auth, :admin]
     resources "/users", UserController, except: [:new, :edit]
     resources "/account", UserController, except: [:new, :edit]
   end

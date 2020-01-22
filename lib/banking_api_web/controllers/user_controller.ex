@@ -26,8 +26,6 @@ defmodule BankingApiWeb.UserController do
           Map.put(perms, :admin, [:backoffice])
         end
 
-        Logger.debug(perms)
-
         with {:ok, token, _claims} <- Guardian.encode_and_sign(user, perms: perms) do
           conn
             |> put_status(:created)
