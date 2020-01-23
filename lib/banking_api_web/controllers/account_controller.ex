@@ -1,8 +1,12 @@
 defmodule BankingApiWeb.AccountController do
   use BankingApiWeb, :controller
 
+  import Guardian.Plug
+
   alias BankingApi.Banking
   alias BankingApi.Banking.Account
+
+  require Logger
 
   action_fallback BankingApiWeb.FallbackController
 
@@ -33,11 +37,53 @@ defmodule BankingApiWeb.AccountController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    account = Banking.get_account!(id)
+  def withdraw(conn, %{"value" => value}) do
+    try do
+      current_user = current_resource(conn) #get current user
+      value = Decimal.cast(value) #converts to Decimal
+      case Banking.withdraw(current_user.account, value) do
+        {:ok, %{account: account}} ->
+          Logger.info("Account Withdraw - Sending email to client...")
+          render(conn, "show.json", account: account)
+          ##FINISH - PLACEHOLDER
+        {:error, :account, _, _} -> {:error, :insufficient_balance}
+        {:error, :transaction, _, _} -> {:error, :bad_request}
+        {:error, :invalid_value} -> {:error, :invalid_value_withdraw}
+      end
+    rescue
+      err ->
+        if err.message do
+          Logger.error(err.message)
+        else
+          err |> IO.inspect() |> Logger.error()
+        end
+          {:error, :bad_request}
+    end
+  end
 
-    with {:ok, %Account{}} <- Banking.delete_account(account) do
-      send_resp(conn, :no_content, "")
+  def transfer(conn, %{"destination_account_id" => destination_account_id, "value" => value}) do
+    try do
+      current_user = current_resource(conn)
+      source = current_user.account || throw("Invalid Source Account")
+      destination = Banking.get_account!(destination_account_id)
+      value = Decimal.cast(value) #converts to Decimal
+
+      case Banking.transfer(source, destination, value) do
+        {:ok, %{source_account: source_account}} ->
+          conn
+          |> put_status(:ok)
+          |> render("show.json", %{account: source_account})
+        {:error, :source_account, _, _} -> {:error, :insufficient_balance}
+        {:error, :transaction, _, _} -> {:error, :bad_request}
+        {:error, :destination_account, _, _} -> {:error, :bad_request}
+      end
+    rescue
+      Ecto.NoResultsError -> {:error, :invalid_destination_account} #destination account not found
+      Ecto.Query.CastError -> {:error, :invalid_destination_account} #invalid destination account id
+      Decimal.Error -> {:error, :invalid_value_withdraw} #invalid value
+      err ->
+        Logger.error(err)
+        {:error, :bad_request}
     end
   end
 end

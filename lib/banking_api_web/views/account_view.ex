@@ -11,6 +11,9 @@ defmodule BankingApiWeb.AccountView do
   end
 
   def render("account.json", %{account: account}) do
-    %{id: account.id}
+    %{
+      id: account.id,
+      balance: account.balance
+    }
   end
 end

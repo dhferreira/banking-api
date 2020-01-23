@@ -106,7 +106,7 @@ defmodule BankingApi.Auth do
     Multi.new()
     |> Multi.insert(:user, User.changeset(%User{}, attrs))
     |> Multi.run(:account, fn banking, %{user: user} ->
-        Banking.create_account(user, %{balance: 100.00})
+        Banking.create_account(user, %{balance: 1000.00}) #When user signs up, receives R$ 1000,00
       end)
     |> Repo.transaction()
   end

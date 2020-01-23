@@ -5,6 +5,8 @@ defmodule BankingApiWeb.UserController do
   use BankingApiWeb, :controller
   require Logger
 
+  import Guardian.Plug
+
   alias BankingApi.Auth
   alias BankingApi.Auth.Guardian
   alias BankingApi.Auth.User
@@ -36,6 +38,11 @@ defmodule BankingApiWeb.UserController do
       {:error, _entity, changeset, _changes_so_far} ->
         {:error, changeset}
     end
+  end
+
+  def show_signedin_user(conn, _params) do
+    current_user = current_resource(conn)
+    render(conn, "show.json", user: current_user)
   end
 
   def show(conn, %{"id" => id}) do

@@ -4,8 +4,8 @@ defmodule BankingApiWeb.ErrorView do
 
   # If you want to customize a particular status code
   # for a certain format, you may uncomment below.
-  # def render("500.json", _assigns) do
-  #   %{errors: %{detail: "Internal Server Error"}}
+  # def render("400.json", _assigns) do
+  #   %{errors: %{detail: "Bad Request"}}
   # end
 
   # By default, Phoenix returns the status message from
@@ -20,6 +20,10 @@ defmodule BankingApiWeb.ErrorView do
   end
 
   def template_unprocessable_entity(template, _assigns) do
+    %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
+  end
+
+  def template_bad_request(template, _assings) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end
 end
