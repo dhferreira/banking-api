@@ -52,11 +52,9 @@ defmodule BankingApi.Banking do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_account(user, attrs \\ %{}) do
-    %Account{balance: attrs.balance, user_id: user.id}
-    #|> Account.changeset(attrs)
-    #|> Account.changeset(%{user_id: user.id})
-    #|> Ecto.Changeset.put_assoc(:user, user)
+  def create_account(attrs \\ %{}) do
+    %Account{}
+    |> Account.changeset(attrs)
     |> Repo.insert()
   end
 

@@ -1,92 +1,92 @@
 defmodule BankingApiWeb.TransactionControllerTest do
   use BankingApiWeb.ConnCase
 
-  alias BankingApi.Banking
-  alias BankingApi.Banking.Transaction
+  # alias BankingApi.Banking
+  # alias BankingApi.Banking.Transaction
 
-  @create_attrs %{
-    description: "some description",
-    value: "120.5"
-  }
-  @update_attrs %{
-    description: "some updated description",
-    value: "456.7"
-  }
-  @invalid_attrs %{description: nil, value: nil}
+  # @create_attrs %{
+  #   description: "some description",
+  #   value: "120.5"
+  # }
+  # @update_attrs %{
+  #   description: "some updated description",
+  #   value: "456.7"
+  # }
+  # @invalid_attrs %{description: nil, value: nil}
 
-  def fixture(:transaction) do
-    {:ok, transaction} = Banking.create_transaction(@create_attrs)
-    transaction
-  end
+  # def fixture(:transaction) do
+  #   {:ok, transaction} = Banking.create_transaction(@create_attrs)
+  #   transaction
+  # end
 
-  setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
-  end
+  # setup %{conn: conn} do
+  #   {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  # end
 
-  describe "index" do
-    test "lists all transactions", %{conn: conn} do
-      conn = get(conn, Routes.transaction_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
+  # describe "index" do
+  #   test "lists all transactions", %{conn: conn} do
+  #     conn = get(conn, Routes.transaction_path(conn, :index))
+  #     assert json_response(conn, 200)["data"] == []
+  #   end
+  # end
 
-  describe "create transaction" do
-    test "renders transaction when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.transaction_path(conn, :create), transaction: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+  # describe "create transaction" do
+  #   test "renders transaction when data is valid", %{conn: conn} do
+  #     conn = post(conn, Routes.transaction_path(conn, :create), transaction: @create_attrs)
+  #     assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, Routes.transaction_path(conn, :show, id))
+  #     conn = get(conn, Routes.transaction_path(conn, :show, id))
 
-      assert %{
-               "id" => id,
-               "description" => "some description",
-               "value" => "120.5"
-             } = json_response(conn, 200)["data"]
-    end
+  #     assert %{
+  #              "id" => id,
+  #              "description" => "some description",
+  #              "value" => "120.5"
+  #            } = json_response(conn, 200)["data"]
+  #   end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.transaction_path(conn, :create), transaction: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
+  #   test "renders errors when data is invalid", %{conn: conn} do
+  #     conn = post(conn, Routes.transaction_path(conn, :create), transaction: @invalid_attrs)
+  #     assert json_response(conn, 422)["errors"] != %{}
+  #   end
+  # end
 
-  describe "update transaction" do
-    setup [:create_transaction]
+  # describe "update transaction" do
+  #   setup [:create_transaction]
 
-    test "renders transaction when data is valid", %{conn: conn, transaction: %Transaction{id: id} = transaction} do
-      conn = put(conn, Routes.transaction_path(conn, :update, transaction), transaction: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+  #   test "renders transaction when data is valid", %{conn: conn, transaction: %Transaction{id: id} = transaction} do
+  #     conn = put(conn, Routes.transaction_path(conn, :update, transaction), transaction: @update_attrs)
+  #     assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, Routes.transaction_path(conn, :show, id))
+  #     conn = get(conn, Routes.transaction_path(conn, :show, id))
 
-      assert %{
-               "id" => id,
-               "description" => "some updated description",
-               "value" => "456.7"
-             } = json_response(conn, 200)["data"]
-    end
+  #     assert %{
+  #              "id" => id,
+  #              "description" => "some updated description",
+  #              "value" => "456.7"
+  #            } = json_response(conn, 200)["data"]
+  #   end
 
-    test "renders errors when data is invalid", %{conn: conn, transaction: transaction} do
-      conn = put(conn, Routes.transaction_path(conn, :update, transaction), transaction: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
+  #   test "renders errors when data is invalid", %{conn: conn, transaction: transaction} do
+  #     conn = put(conn, Routes.transaction_path(conn, :update, transaction), transaction: @invalid_attrs)
+  #     assert json_response(conn, 422)["errors"] != %{}
+  #   end
+  # end
 
-  describe "delete transaction" do
-    setup [:create_transaction]
+  # describe "delete transaction" do
+  #   setup [:create_transaction]
 
-    test "deletes chosen transaction", %{conn: conn, transaction: transaction} do
-      conn = delete(conn, Routes.transaction_path(conn, :delete, transaction))
-      assert response(conn, 204)
+  #   test "deletes chosen transaction", %{conn: conn, transaction: transaction} do
+  #     conn = delete(conn, Routes.transaction_path(conn, :delete, transaction))
+  #     assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.transaction_path(conn, :show, transaction))
-      end
-    end
-  end
+  #     assert_error_sent 404, fn ->
+  #       get(conn, Routes.transaction_path(conn, :show, transaction))
+  #     end
+  #   end
+  # end
 
-  defp create_transaction(_) do
-    transaction = fixture(:transaction)
-    {:ok, transaction: transaction}
-  end
+  # defp create_transaction(_) do
+  #   transaction = fixture(:transaction)
+  #   {:ok, transaction: transaction}
+  # end
 end

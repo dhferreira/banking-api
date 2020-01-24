@@ -20,6 +20,49 @@ defmodule BankingApiWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     case Auth.create_user(user_params) do
+      # Create OK
+      {:ok, %{user: user, account: account}} ->
+        conn
+          |> put_status(:created)
+          |> put_resp_header("location", Routes.user_path(conn, :show, user))
+          |> render("show.json", %{user: user, account: account})
+      # Create failed
+      {:error, _entity, changeset, _changes_so_far} ->
+        {:error, changeset}
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    user = Auth.get_user!(id)
+    render(conn, "show.json", user: user)
+  end
+
+  def show_signedin_user(conn, _params) do
+    current_user = current_resource(conn)
+    render(conn, "show.json", user: current_user)
+  end
+
+  def update(conn, %{"id" => id, "user" => user_params}) do
+    user = Auth.get_user!(id)
+
+    with {:ok, %User{} = user} <- Auth.update_user(user, user_params) do
+      render(conn, "show.json", user: user)
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    user = Auth.get_user!(id)
+
+    with {:ok, %User{}} <- Auth.delete_user(user) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  def signup(conn, %{"user" => user_params}) do
+    #Assure just Users with permission DEFAULT to be created
+    #user_params.permission = "DEFAULT"
+
+    case Auth.create_user(user_params) do
       # Create OK, generates access token(JWT)
       {:ok, %{user: user, account: account}} ->
 
@@ -37,32 +80,6 @@ defmodule BankingApiWeb.UserController do
       # Create failed
       {:error, _entity, changeset, _changes_so_far} ->
         {:error, changeset}
-    end
-  end
-
-  def show_signedin_user(conn, _params) do
-    current_user = current_resource(conn)
-    render(conn, "show.json", user: current_user)
-  end
-
-  def show(conn, %{"id" => id}) do
-    user = Auth.get_user!(id)
-    render(conn, "show.json", user: user)
-  end
-
-  def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Auth.get_user!(id)
-
-    with {:ok, %User{} = user} <- Auth.update_user(user, user_params) do
-      render(conn, "show.json", user: user)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    user = Auth.get_user!(id)
-
-    with {:ok, %User{}} <- Auth.delete_user(user) do
-      send_resp(conn, :no_content, "")
     end
   end
 

@@ -14,8 +14,23 @@ defmodule BankingApi.Banking.Account do
   @doc false
   def changeset(account, attrs) do
     account
-    |> cast(attrs, [:balance])
-    |> validate_required([:balance])
+    |> cast(attrs, [:balance, :user_id])
+    |> validate_required([:balance, :user_id])
     |> validate_number(:balance, greater_than_or_equal_to: 0)
+    |> balance_to_decimal()
+  end
+
+  defp balance_to_decimal(
+        %Ecto.Changeset{valid?: true, changes: %{balance: balance}} = changeset
+      ) do
+    balance =
+        balance
+        |> Decimal.new()
+        |> Decimal.round(2)
+    change(changeset, %{balance: balance})
+  end
+
+  defp balance_to_decimal(changeset) do
+    changeset
   end
 end

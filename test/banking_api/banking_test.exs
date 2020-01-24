@@ -4,15 +4,29 @@ defmodule BankingApi.BankingTest do
   alias BankingApi.Banking
 
   describe "accounts" do
+    alias BankingApi.Auth.User
     alias BankingApi.Banking.Account
 
-    @valid_attrs %{}
-    @update_attrs %{}
-    @invalid_attrs %{}
+    @valid_attrs %{balance: 100.00}
+    @update_attrs %{balance: 500.00}
+    @invalid_attrs %{user_id: nil, balance: -100.00}
 
     def account_fixture(attrs \\ %{}) do
+      #first, creates an user
+      {:ok, user} =
+        %User{}
+        |> User.changeset(%{
+          name: "Teste",
+          email: "teste@email.com",
+          is_active: true,
+          password: "some password"
+        })
+        |> Repo.insert()
+
+      #then, creates account associated to the user
       {:ok, account} =
         attrs
+        |> Enum.into(%{user_id: user.id})
         |> Enum.into(@valid_attrs)
         |> Banking.create_account()
 
@@ -29,8 +43,26 @@ defmodule BankingApi.BankingTest do
       assert Banking.get_account!(account.id) == account
     end
 
+    test "get_account!/1 raise exception when user account not found" do
+      account_fixture()
+      assert_raise Ecto.NoResultsError, fn -> Banking.get_account!(Ecto.UUID.generate()) end
+    end
+
     test "create_account/1 with valid data creates a account" do
-      assert {:ok, %Account{} = account} = Banking.create_account(@valid_attrs)
+      {:ok, user} =
+        %User{}
+        |> User.changeset(%{
+          name: "Teste",
+          email: "teste@email.com",
+          is_active: true,
+          password: "some password"
+        })
+        |> Repo.insert()
+
+      assert {:ok, %Account{} = account} =
+        %{user_id: user.id}
+        |> Enum.into(@valid_attrs)
+        |> Banking.create_account()
     end
 
     test "create_account/1 with invalid data returns error changeset" do
@@ -48,12 +80,6 @@ defmodule BankingApi.BankingTest do
       assert account == Banking.get_account!(account.id)
     end
 
-    test "delete_account/1 deletes the account" do
-      account = account_fixture()
-      assert {:ok, %Account{}} = Banking.delete_account(account)
-      assert_raise Ecto.NoResultsError, fn -> Banking.get_account!(account.id) end
-    end
-
     test "change_account/1 returns a account changeset" do
       account = account_fixture()
       assert %Ecto.Changeset{} = Banking.change_account(account)
@@ -63,13 +89,16 @@ defmodule BankingApi.BankingTest do
   describe "transactions" do
     alias BankingApi.Banking.Transaction
 
-    @valid_attrs %{description: "some description", value: "120.5"}
-    @update_attrs %{description: "some updated description", value: "456.7"}
+    @valid_attrs %{description: "some description", value: "120.50"}
+    @update_attrs %{description: "some updated description", value: "456.70"}
     @invalid_attrs %{description: nil, value: nil}
 
     def transaction_fixture(attrs \\ %{}) do
+      account = account_fixture()
+
       {:ok, transaction} =
         attrs
+        |> Enum.into(%{account_id: account.id})
         |> Enum.into(@valid_attrs)
         |> Banking.create_transaction()
 
@@ -87,9 +116,14 @@ defmodule BankingApi.BankingTest do
     end
 
     test "create_transaction/1 with valid data creates a transaction" do
-      assert {:ok, %Transaction{} = transaction} = Banking.create_transaction(@valid_attrs)
+      account = account_fixture()
+
+      assert {:ok, %Transaction{} = transaction} =
+        @valid_attrs
+        |> Enum.into(%{account_id: account.id})
+        |> Banking.create_transaction()
       assert transaction.description == "some description"
-      assert transaction.value == Decimal.new("120.5")
+      assert transaction.value == Decimal.new("120.50") |> Decimal.round(2)
     end
 
     test "create_transaction/1 with invalid data returns error changeset" do
@@ -100,7 +134,7 @@ defmodule BankingApi.BankingTest do
       transaction = transaction_fixture()
       assert {:ok, %Transaction{} = transaction} = Banking.update_transaction(transaction, @update_attrs)
       assert transaction.description == "some updated description"
-      assert transaction.value == Decimal.new("456.7")
+      assert transaction.value == Decimal.new("456.7") |> Decimal.round(2)
     end
 
     test "update_transaction/2 with invalid data returns error changeset" do

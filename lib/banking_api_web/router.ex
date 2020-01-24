@@ -16,16 +16,16 @@ defmodule BankingApiWeb.Router do
   scope "/api", BankingApiWeb do
     pipe_through :api
     post "/users/signin", UserController, :signin
-    post "/users/", UserController, :create
+    post "/users/signup", UserController, :signup
   end
 
-  scope "/api", BankingApiWeb do
-    pipe_through [:api, :auth]
-    get "/users", UserController, :show_signedin_user
-    get "/user", UserController, :show_signedin_user
-    post "/account/withdraw", AccountController, :withdraw
-    post "/account/transfer", AccountController, :transfer
-  end
+  # scope "/api", BankingApiWeb do
+  #   pipe_through [:api, :auth]
+  #   get "/users", UserController, :show_signedin_user
+  #   get "/user", UserController, :show_signedin_user
+  #   post "/account/withdraw", AccountController, :withdraw
+  #   post "/account/transfer", AccountController, :transfer
+  # end
 
   scope "/api/backoffice", BankingApiWeb do
     pipe_through [:api, :auth, :admin]
