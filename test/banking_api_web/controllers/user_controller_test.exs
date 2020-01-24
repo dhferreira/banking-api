@@ -1,46 +1,65 @@
 defmodule BankingApiWeb.UserControllerTest do
   use BankingApiWeb.ConnCase
 
-  # alias BankingApi.Auth
-  # alias BankingApi.Auth.User
+  alias BankingApi.Auth
+  alias BankingApi.Auth.Guardian
+  alias BankingApi.Auth.User
 
-  # @create_attrs %{
-  #   name: "some name",
-  #   email: "email@email.com.br",
-  #   password: "some password",
-  #   is_active: true
-  # }
-  # @update_attrs %{
-  #   name: "some updated name",
-  #   email: "email_updated@email.com.br",
-  #   password: "some updated password",
-  #   is_active: false
-  # }
-  # @invalid_attrs %{email: nil, is_active: nil, name: nil}
-  # @valid_credentials %{
-  #   email: "email@email.com.br",
-  #   password: "some password",
-  # }
-  # @invalid_credentials %{
-  #   email: "email@email.com.br",
-  #   password: "some wrong password",
-  # }
+  @create_attrs %{
+    name: "some name",
+    email: "email@email.com.br",
+    password: "some password",
+    is_active: true
+  }
+  @update_attrs %{
+    name: "some updated name",
+    email: "email_updated@email.com.br",
+    password: "some updated password",
+    is_active: false
+  }
+  @invalid_attrs %{email: nil, is_active: nil, name: nil}
+  @valid_credentials %{
+    email: "email@email.com.br",
+    password: "some password",
+  }
+  @invalid_credentials %{
+    email: "email@email.com.br",
+    password: "some wrong password",
+  }
 
-  # def fixture(:user) do
-  #   {:ok, user} = Auth.create_user(@create_attrs)
-  #   user
-  # end
+  def fixture(:user) do
+    {:ok, user} = Auth.create_user(@create_attrs)
+    user
+  end
 
-  # setup %{conn: conn} do
-  #   {:ok, conn: put_req_header(conn, "accept", "application/json")}
-  # end
+  setup %{conn: conn} do
+    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  end
 
-  # describe "index" do
-  #   test "lists all users", %{conn: conn} do
-  #     conn = get(conn, Routes.user_path(conn, :index))
-  #     assert json_response(conn, 200)["data"] == []
-  #   end
-  # end
+  describe "index" do
+    test "lists all users", %{conn: conn} do
+      user = fixture(:user)
+      {:ok, user, token} = Guardian.authenticate(@valid_credentials.email, @valid_credentials.password)
+
+      conn = conn
+      |> put_req_header(conn, "authorization", "Bearer #{token}")
+      |> get(Routes.user_path(conn, :index))
+
+      assert json_response(conn, 200)["data"] == [
+        %{
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          is_active: user.is_active,
+          permission: user.permission,
+          account: %{
+            id: user.account.id,
+            balance: user.account.balance
+          }
+        }
+      ]
+    end
+  end
 
   # describe "create user" do
   #   test "renders user when data is valid", %{conn: conn} do
