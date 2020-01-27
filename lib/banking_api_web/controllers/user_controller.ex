@@ -21,13 +21,13 @@ defmodule BankingApiWeb.UserController do
   def create(conn, %{"user" => user_params}) do
     case Auth.create_user(user_params) do
       # Create OK
-      {:ok, %{user: user, account: account}} ->
+      {:ok, %User{} = user} ->
         conn
           |> put_status(:created)
           |> put_resp_header("location", Routes.user_path(conn, :show, user))
-          |> render("show.json", %{user: user, account: account})
+          |> render("show.json", %{user: user})
       # Create failed
-      {:error, _entity, changeset, _changes_so_far} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         {:error, changeset}
     end
   end
@@ -50,6 +50,21 @@ defmodule BankingApiWeb.UserController do
     end
   end
 
+  def update_own_user(conn, %{"user" => user_params}) do
+    current_user = current_resource(conn)
+
+    user_params =
+      if current_user.permission !== "ADMIN" do
+        user_params = Map.delete(user_params, "permission")
+      else
+        user_params
+      end
+
+    with {:ok, %User{} = user} <- Auth.update_user(current_user, user_params) do
+      render(conn, "show.json", user: user)
+    end
+  end
+
   def delete(conn, %{"id" => id}) do
     user = Auth.get_user!(id)
 
@@ -59,35 +74,38 @@ defmodule BankingApiWeb.UserController do
   end
 
   def signup(conn, %{"user" => user_params}) do
-    #Assure just Users with permission DEFAULT to be created
-    #user_params.permission = "DEFAULT"
+    #Ensures just Users with permission DEFAULT can be created
+    user_params = Map.put(user_params, "permission", "DEFAULT")
 
     case Auth.create_user(user_params) do
       # Create OK, generates access token(JWT)
-      {:ok, %{user: user, account: account}} ->
+      {:ok, %User{} = user} ->
 
         perms = %{default: [:banking]} #set default permissions
-        if user.permission === "ADMIN" do
-          Map.put(perms, :admin, [:backoffice])
-        end
 
         with {:ok, token, _claims} <- Guardian.encode_and_sign(user, perms: perms) do
           conn
             |> put_status(:created)
             |> put_resp_header("location", Routes.user_path(conn, :show, user))
-            |> render("show.json", %{user: user, token: token, account: account})
+            |> render("show.json", %{user: user, token: token})
         end
       # Create failed
-      {:error, _entity, changeset, _changes_so_far} ->
+      {:error, changeset} ->
         {:error, changeset}
     end
   end
 
-  def signin(conn, %{"email" => email, "password" => password}) do
-    with {:ok, user, token} <- Guardian.authenticate(email, password) do
-      conn
-      |> put_status(:ok)
-      |> render("user.json", %{user: user, token: token})
+  def signin(conn, body) do
+    try do
+      %{"email" => email, "password" => password} = body
+
+      with {:ok, user, token} <- Guardian.authenticate(email, password) do
+        conn
+        |> put_status(:ok)
+        |> render("user.json", %{user: user, token: token})
+      end
+    rescue
+      _ -> {:error, :bad_request}
     end
   end
 end

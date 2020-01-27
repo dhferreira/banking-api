@@ -10,25 +10,29 @@ defmodule BankingApiWeb.FallbackController do
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
-    |> render(BankingApiWeb.ErrorView, :"404")
+    |> put_view(BankingApiWeb.ErrorView)
+    |> render(:"404")
   end
 
   def call(conn, {:error, :bad_request}) do
     conn
     |> put_status(:bad_request)
-    |> render(BankingApiWeb.ErrorView, :"400")
+    |> put_view(BankingApiWeb.ErrorView)
+    |> render(:"400")
   end
 
   def call(conn, {:error, :unauthorized}) do
     conn
     |> put_status(:unauthorized)
-    |> render(BankingApiWeb.ErrorView, :"401")
+    |> put_view(BankingApiWeb.ErrorView)
+    |> render(:"401")
   end
 
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(BankingApiWeb.ChangesetView, "error.json", changeset: changeset)
+    |> put_view(BankingApiWeb.ChangesetView)
+    |> render("error.json", changeset: changeset)
   end
 
   def call(conn, {:error, :invalid_value_withdraw}) do

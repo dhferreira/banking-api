@@ -19,13 +19,15 @@ defmodule BankingApiWeb.Router do
     post "/users/signup", UserController, :signup
   end
 
-  # scope "/api", BankingApiWeb do
-  #   pipe_through [:api, :auth]
-  #   get "/users", UserController, :show_signedin_user
-  #   get "/user", UserController, :show_signedin_user
+  scope "/api", BankingApiWeb do
+    pipe_through [:api, :auth]
+    get "/users", UserController, :show_signedin_user
+    get "/user", UserController, :show_signedin_user
+    put "/user", UserController, :update_own_user
+    patch "/user", UserController, :update_own_user
   #   post "/account/withdraw", AccountController, :withdraw
   #   post "/account/transfer", AccountController, :transfer
-  # end
+  end
 
   scope "/api/backoffice", BankingApiWeb do
     pipe_through [:api, :auth, :admin]

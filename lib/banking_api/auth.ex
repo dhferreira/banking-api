@@ -6,7 +6,6 @@ defmodule BankingApi.Auth do
 
   alias BankingApi.Auth.User
   alias BankingApi.Banking
-  alias BankingApi.Banking.Account
   alias BankingApi.Repo
   alias Ecto.Multi
 
@@ -109,7 +108,7 @@ defmodule BankingApi.Auth do
     |> Multi.run(:account, fn _repo, %{user: user} -> Banking.create_account(%{balance: 1000.00, user_id: user.id}) end)#When user signs up, receives R$ 1000,00
     |> Repo.transaction()
     |> case do
-      {:ok, %{user: user, account: account}}  ->
+      {:ok, %{user: user, account: _account}}  ->
         {:ok, get_user!(user.id)}
       {:error, _entity, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -129,8 +128,8 @@ defmodule BankingApi.Auth do
 
   """
   def update_user(%User{} = user, attrs) do
-    user = user
-    |> User.changeset(attrs)
+    user
+    |> User.changeset_update(attrs)
     |> Repo.update()
     |> case do
       {:ok, user} -> {:ok, Repo.preload(user, :account)}
