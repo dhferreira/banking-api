@@ -1,86 +1,89 @@
 defmodule BankingApiWeb.AccountControllerTest do
   use BankingApiWeb.ConnCase
 
-  # alias BankingApi.Banking
-  # alias BankingApi.Banking.Account
+  alias BankingApi.Auth
+  alias BankingApi.Auth.Guardian
 
-  # @create_attrs %{
+  @create_attrs %{
+    name: "some test name",
+    email: "test@email.com.br",
+    password: "some password",
+  }
+  @create_admin_attrs %{
+    name: "some name",
+    email: "email@email.com.br",
+    password: "some password",
+    permission: "ADMIN"
+  }
 
-  # }
-  # @update_attrs %{
+  def fixture(:user) do
+    {:ok, user} = Auth.create_user(@create_attrs)
+    user
+  end
 
-  # }
-  # @invalid_attrs %{}
+  def fixture(:admin_user) do
+    {:ok, user} = Auth.create_user(@create_admin_attrs)
+    user
+  end
 
-  # def fixture(:account) do
-  #   {:ok, account} = Banking.create_account(@create_attrs)
-  #   account
-  # end
+  setup %{conn: conn} do
+    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  end
 
-  # setup %{conn: conn} do
-  #   {:ok, conn: put_req_header(conn, "accept", "application/json")}
-  # end
+  describe "index" do
+    setup [:create_admin_user]
+    test "lists all accounts", %{conn: conn, user: user} do
 
-  # describe "index" do
-  #   test "lists all accounts", %{conn: conn} do
-  #     conn = get(conn, Routes.account_path(conn, :index))
-  #     assert json_response(conn, 200)["data"] == []
-  #   end
-  # end
+      %{:id => id} = user.account
 
-  # describe "create account" do
-  #   test "renders account when data is valid", %{conn: conn} do
-  #     conn = post(conn, Routes.account_path(conn, :create), account: @create_attrs)
-  #     assert %{"id" => id} = json_response(conn, 201)["data"]
+      conn = get(conn, Routes.account_path(conn, :index))
+      assert [
+        %{
+          "id" => ^id,
+          "balance" => "1000.00"
+        }
+      ] = json_response(conn, 200)["data"]
 
-  #     conn = get(conn, Routes.account_path(conn, :show, id))
+      #insert one more user with account
+      new_user = fixture(:user)
 
-  #     assert %{
-  #              "id" => id
-  #            } = json_response(conn, 200)["data"]
-  #   end
+      %{:id => new_id} = new_user.account
 
-  #   test "renders errors when data is invalid", %{conn: conn} do
-  #     conn = post(conn, Routes.account_path(conn, :create), account: @invalid_attrs)
-  #     assert json_response(conn, 422)["errors"] != %{}
-  #   end
-  # end
+      conn = get(conn, Routes.account_path(conn, :index))
+      assert [
+        %{
+          "id" => ^id,
+          "balance" => "1000.00"
+        },
+        %{
+          "id" => ^new_id,
+          "balance" => "1000.00"
+        }
+      ] = json_response(conn, 200)["data"]
+    end
+  end
 
-  # describe "update account" do
-  #   setup [:create_account]
-
-  #   test "renders account when data is valid", %{conn: conn, account: %Account{id: id} = account} do
-  #     conn = put(conn, Routes.account_path(conn, :update, account), account: @update_attrs)
-  #     assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-  #     conn = get(conn, Routes.account_path(conn, :show, id))
-
-  #     assert %{
-  #              "id" => id
-  #            } = json_response(conn, 200)["data"]
-  #   end
-
-  #   test "renders errors when data is invalid", %{conn: conn, account: account} do
-  #     conn = put(conn, Routes.account_path(conn, :update, account), account: @invalid_attrs)
-  #     assert json_response(conn, 422)["errors"] != %{}
-  #   end
-  # end
-
-  # describe "delete account" do
-  #   setup [:create_account]
-
-  #   test "deletes chosen account", %{conn: conn, account: account} do
-  #     conn = delete(conn, Routes.account_path(conn, :delete, account))
-  #     assert response(conn, 204)
-
-  #     assert_error_sent 404, fn ->
-  #       get(conn, Routes.account_path(conn, :show, account))
-  #     end
-  #   end
-  # end
 
   # defp create_account(_) do
   #   account = fixture(:account)
   #   {:ok, account: account}
   # end
+
+  # defp create_user(%{conn: conn}) do
+  #   fixture(:user)
+  #   {:ok, user, token} = Guardian.authenticate(@create_attrs.email, @create_attrs.password)
+
+  #   conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+  #   {:ok, %{user: user, conn: conn}}
+  # end
+
+  defp create_admin_user(%{conn: conn}) do
+    fixture(:admin_user)
+    {:ok, user, token} = Guardian.authenticate(@create_admin_attrs.email, @create_admin_attrs.password)
+
+    conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+    {:ok, %{user: user, conn: conn}}
+  end
 end

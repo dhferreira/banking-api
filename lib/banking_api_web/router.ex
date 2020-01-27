@@ -32,7 +32,7 @@ defmodule BankingApiWeb.Router do
   scope "/api/backoffice", BankingApiWeb do
     pipe_through [:api, :auth, :admin]
     resources "/users", UserController, except: [:new, :edit]
-    resources "/account", UserController, except: [:new, :edit]
+    resources "/accounts", AccountController, only: [:index, :show]
   end
 
 end

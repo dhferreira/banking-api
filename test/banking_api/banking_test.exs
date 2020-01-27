@@ -31,6 +31,8 @@ defmodule BankingApi.BankingTest do
         |> Banking.create_account()
 
       account
+        |> Repo.preload([:user])
+        |> Repo.preload([:transaction])
     end
 
     test "list_accounts/0 returns all accounts" do
@@ -48,7 +50,7 @@ defmodule BankingApi.BankingTest do
       assert_raise Ecto.NoResultsError, fn -> Banking.get_account!(Ecto.UUID.generate()) end
     end
 
-    test "create_account/1 with valid data creates a account" do
+    test "create_account/1 with valid data creates an account" do
       {:ok, user} =
         %User{}
         |> User.changeset(%{

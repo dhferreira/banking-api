@@ -22,6 +22,8 @@ defmodule BankingApi.Banking do
   """
   def list_accounts do
     Repo.all(Account)
+    |> Repo.preload([:user])
+    |> Repo.preload([:transaction])
   end
 
   @doc """
@@ -38,7 +40,11 @@ defmodule BankingApi.Banking do
       ** (Ecto.NoResultsError)
 
   """
-  def get_account!(id), do: Repo.get!(Account, id)
+  def get_account!(id) do
+    Repo.get!(Account, id)
+    |> Repo.preload([:user])
+    |> Repo.preload([:transaction])
+  end
 
   @doc """
   Creates an account.
