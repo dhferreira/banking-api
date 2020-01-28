@@ -6,10 +6,11 @@ defmodule BankingApi.Repo.Migrations.CreateTransactions do
       add :id, :binary_id, primary_key: true
       add :description, :string, null: false
       add :value, :decimal, precision: 8, scale: 2, default: 0.00
-      add :account_id, references(:accounts, type: :binary_id, on_delete: :delete_all), null: false
+
+      add :account_id, references(:accounts, type: :binary_id, on_delete: :delete_all),
+        null: false
 
       timestamps()
     end
-
   end
 end

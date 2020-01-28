@@ -1,8 +1,8 @@
 defmodule BankingApiWeb.TransactionControllerTest do
   use BankingApiWeb.ConnCase
 
-  # alias BankingApi.Banking
-  # alias BankingApi.Banking.Transaction
+  # alias BankingApi.Bank
+  # alias BankingApi.Bank.Transaction
 
   # @create_attrs %{
   #   description: "some description",

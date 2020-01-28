@@ -37,6 +37,7 @@ defmodule BankingApiWeb.FallbackController do
 
   def call(conn, {:error, :invalid_value_withdraw}) do
     body = Poison.encode!(%{errors: %{detail: "Invalid Value (Must be greater than 0.00)"}})
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(400, body)
@@ -44,6 +45,7 @@ defmodule BankingApiWeb.FallbackController do
 
   def call(conn, {:error, :insufficient_balance}) do
     body = Poison.encode!(%{errors: %{detail: "Insufficient Balance"}})
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(400, body)
@@ -51,6 +53,7 @@ defmodule BankingApiWeb.FallbackController do
 
   def call(conn, {:error, :invalid_destination_account}) do
     body = Poison.encode!(%{errors: %{detail: "Invalid Destination Account"}})
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(400, body)

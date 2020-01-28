@@ -5,11 +5,12 @@ defmodule BankingApi.Auth do
   import Ecto.Query, warn: false
 
   alias BankingApi.Auth.User
-  alias BankingApi.Banking
+  alias BankingApi.Bank
   alias BankingApi.Repo
   alias Ecto.Multi
 
   require Logger
+
   @doc """
   Returns the list of users.
 
@@ -97,19 +98,18 @@ defmodule BankingApi.Auth do
       {:error, %Ecto.Changeset{}}
 
   """
-  # def create_user(attrs \\ %{}) do
-  #   %User{}
-  #   |> User.changeset(attrs)
-  #   |> Repo.insert()
-  # end
   def create_user(attrs \\ %{}) do
     Multi.new()
     |> Multi.insert(:user, User.changeset(%User{}, attrs))
-    |> Multi.run(:account, fn _repo, %{user: user} -> Banking.create_account(%{balance: 1000.00, user_id: user.id}) end)#When user signs up, receives R$ 1000,00
+    # When user signs up, receives R$ 1000,00
+    |> Multi.run(:account, fn _repo, %{user: user} ->
+      Bank.create_account(%{balance: 1000.00, user_id: user.id})
+    end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{user: user, account: _account}}  ->
+      {:ok, %{user: user, account: _account}} ->
         {:ok, get_user!(user.id)}
+
       {:error, _entity, changeset, _changes_so_far} ->
         {:error, changeset}
     end

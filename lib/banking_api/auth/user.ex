@@ -16,7 +16,7 @@ defmodule BankingApi.Auth.User do
     field :password, :string, virtual: true
     field :password_hash, :string
     field :permission, :string, default: "DEFAULT"
-    has_one :account, BankingApi.Banking.Account
+    has_one :account, BankingApi.Bank.Account
     timestamps()
   end
 
@@ -47,8 +47,8 @@ defmodule BankingApi.Auth.User do
   end
 
   defp put_password_hash(
-        %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
-      ) do
+         %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
+       ) do
     change(changeset, Argon2.add_hash(password))
   end
 

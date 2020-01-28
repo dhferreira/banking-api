@@ -1,13 +1,13 @@
-defmodule BankingApi.Banking do
+defmodule BankingApi.Bank do
   @moduledoc """
   The Banking context.
   """
 
   import Ecto.Query, warn: false
-  alias BankingApi.Banking.Account
-  alias BankingApi.Banking.Transaction
+  alias BankingApi.Bank.Account
+  alias BankingApi.Bank.Batches
+  alias BankingApi.Bank.Transaction
   alias BankingApi.Repo
-  alias Ecto.Multi
 
   require Logger
 
@@ -101,75 +101,81 @@ defmodule BankingApi.Banking do
   ## Examples
 
       iex> withdraw(account, 100.00)
-      {:ok, %Account{}}
+      {:ok, %{account: %Account{}, transaction: %Transaction{}}}
 
-      #Insufficient Balance
-      iex> withdraw(account)
-      {:error, %Ecto.Changeset{}}
+      #Insufficient_Balance
+      iex> withdraw(account, value)
+      {:error, :insufficient_balance}
+
+      iex> withdraw(not_valid_account, value)
+      {:error, :account_not_found}
+
+      iex> withdraw(account, value)
+      {:error, %Changeset{}}
 
       iex> withdraw(account, -100.00)
-      {:error, :invalid_value}
+      {:error, :invalid_value_withdraw}
 
   """
-  def withdraw(%Account{} = account, value) do
-    #check if value is valid (> 0.00)
-    if Decimal.cmp(value, Decimal.cast(0.00)) === :gt do
-      value = value |> Decimal.round(2) |> Decimal.minus() #round for 2 decimal places and negative (debit)
+  def withdraw(account_id, amount) do
+    try do
+      amount = Decimal.cast(amount)
 
-      #prepare account balance update
-      balance_updated = Decimal.add(account.balance, value)
-      account_changeset = Account.changeset(account, %{balance: balance_updated})
-
-      #prepare account transaction details
-      transaction = %{
-        value: value,
-        description:  "SAQUE",
-        account_id: account.id
-      }
-      transaction_changeset = Transaction.changeset(%Transaction{}, transaction)
-
-      #persists in DB
-      Multi.new()
-      |> Multi.insert(:transaction, transaction_changeset)
-      |> Multi.update(:account, account_changeset)
-      |> Repo.transaction()
-    else
-      {:error, :invalid_value}
+      #check if amount is valid (> 0.00)
+      if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
+        Batches.withdraw_money(account_id, amount)
+        |> Repo.transaction()
+        |> case do
+          {:ok, %{save_withdraw_transaction: {updated_account, _amount, transaction}}} ->
+            {:ok, %{account: updated_account, transaction: transaction}}
+          {:error, _, :account_not_found, _} -> {:error, :account_not_found}
+          {:error, _, :insufficient_balance, _} -> {:error, :insufficient_balance}
+          {:error, _, changeset} -> {:error, :bad_request}
+        end
+      else
+        {:error, :invalid_value_withdraw}
+      end
+    rescue
+      err ->
+        if err.message do
+          Logger.error(err.message)
+        else
+          err |> IO.inspect() |> Logger.error()
+        end
+          {:error, :bad_request}
     end
   end
 
-  def transfer(%Account{} = source, %Account{} = destination, value) do
-    if Decimal.cmp(value, Decimal.cast(0.00)) === :gt do
-      value = value |> Decimal.round(2) #round for 2 decimal places
+  def transfer(source_account_id, destination_account_id, amount) do
+    try do
+      amount = Decimal.cast(amount)
 
-      #Debit value from source account
-      source_balance_updated = Decimal.add(source.balance, Decimal.minus(value))
-      source_changeset = Account.changeset(source, %{balance: source_balance_updated}) #validate if new balance is >= 0.00
-
-      #Credit value to destination account
-      destination_balance_updated = Decimal.add(destination.balance, value)
-      destination_changeset = Ecto.Changeset.change(destination, balance: destination_balance_updated) #doesn't validate balance because value alway be >= 0.00
-
-       #prepare account transaction details
-       transaction = %{
-        value: Decimal.minus(value),
-        description:  "TRANSFERENCIA ENTRE CONTAS",
-        account_id: source.id
-      }
-      transaction_changeset = Transaction.changeset(%Transaction{}, transaction)
-
-      #persists in DB
-      Multi.new()
-      |> Multi.insert(:transaction, transaction_changeset)
-      |> Multi.update(:source_account, source_changeset)
-      |> Multi.update(:destination_account, destination_changeset)
-      |> Repo.transaction()
-    else
-      {:error, :invalid_value}
+      #check if amount is valid (> 0.00)
+      if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
+        Batches.transfer_money(source_account_id, destination_account_id, amount)
+        |> Repo.transaction()
+        |> case do
+          {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
+            {:ok, %{account: updated_account, transaction: transaction}}
+          {:error, _, :account_not_found, _} -> {:error, :account_not_found}
+          {:error, _, :insufficient_balance, _} -> {:error, :insufficient_balance}
+          {:error, _, changeset} -> {:error, :bad_request}
+        end
+      else
+        {:error, :invalid_value}
+      end
+    rescue
+      err ->
+        if err.message do
+          Logger.error(err.message)
+        else
+          err |> IO.inspect() |> Logger.error()
+        end
+          {:error, :bad_request}
     end
   end
 
-  alias BankingApi.Banking.Transaction
+  alias BankingApi.Bank.Transaction
 
   @doc """
   Returns the list of transactions.

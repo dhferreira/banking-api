@@ -1,4 +1,4 @@
-defmodule BankingApi.Banking.Transaction do
+defmodule BankingApi.Bank.Transaction do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -7,7 +7,7 @@ defmodule BankingApi.Banking.Transaction do
   schema "transactions" do
     field :description, :string
     field :value, :decimal, precision: 8, scale: 2
-    belongs_to :account, BankingApi.Banking.Account
+    belongs_to :account, BankingApi.Bank.Account
     timestamps()
   end
 

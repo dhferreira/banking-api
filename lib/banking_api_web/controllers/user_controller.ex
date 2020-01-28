@@ -23,9 +23,10 @@ defmodule BankingApiWeb.UserController do
       # Create OK
       {:ok, %User{} = user} ->
         conn
-          |> put_status(:created)
-          |> put_resp_header("location", Routes.user_path(conn, :show, user))
-          |> render("show.json", %{user: user})
+        |> put_status(:created)
+        |> put_resp_header("location", Routes.user_path(conn, :show, user))
+        |> render("show.json", %{user: user})
+
       # Create failed
       {:error, %Ecto.Changeset{} = changeset} ->
         {:error, changeset}
@@ -37,7 +38,7 @@ defmodule BankingApiWeb.UserController do
     render(conn, "show.json", user: user)
   end
 
-  def show_signedin_user(conn, _params) do
+  def show_current_user(conn, _params) do
     current_user = current_resource(conn)
     render(conn, "show.json", user: current_user)
   end
@@ -50,12 +51,12 @@ defmodule BankingApiWeb.UserController do
     end
   end
 
-  def update_own_user(conn, %{"user" => user_params}) do
+  def update_current_user(conn, %{"user" => user_params}) do
     current_user = current_resource(conn)
 
     user_params =
       if current_user.permission !== "ADMIN" do
-        user_params = Map.delete(user_params, "permission")
+        Map.delete(user_params, "permission")
       else
         user_params
       end
@@ -74,21 +75,22 @@ defmodule BankingApiWeb.UserController do
   end
 
   def signup(conn, %{"user" => user_params}) do
-    #Ensures just Users with permission DEFAULT can be created
+    # Ensures just Users with permission DEFAULT can be created
     user_params = Map.put(user_params, "permission", "DEFAULT")
 
     case Auth.create_user(user_params) do
       # Create OK, generates access token(JWT)
       {:ok, %User{} = user} ->
-
-        perms = %{default: [:banking]} #set default permissions
+        # set default permissions
+        perms = %{default: [:banking]}
 
         with {:ok, token, _claims} <- Guardian.encode_and_sign(user, perms: perms) do
           conn
-            |> put_status(:created)
-            |> put_resp_header("location", Routes.user_path(conn, :show, user))
-            |> render("show.json", %{user: user, token: token})
+          |> put_status(:created)
+          |> put_resp_header("location", Routes.user_path(conn, :show, user))
+          |> render("show.json", %{user: user, token: token})
         end
+
       # Create failed
       {:error, changeset} ->
         {:error, changeset}

@@ -6,8 +6,28 @@ defmodule BankingApiWeb.AccountView do
     %{data: render_many(accounts, AccountView, "account.json")}
   end
 
+  def render("show.json", %{account: account, transaction: transaction}) do
+    %{data: render(AccountView, "account.json", %{account: account, transaction: transaction})}
+  end
+
   def render("show.json", %{account: account}) do
     %{data: render_one(account, AccountView, "account.json")}
+  end
+
+  def render("account.json", %{account: account, transaction: transaction}) do
+    %{
+      account: %{
+        id: account.id,
+        balance: account.balance,
+      },
+      transaction: %{
+        id: transaction.id,
+        description: transaction.description,
+        value: transaction.value,
+        source_account_id: transaction.account_id,
+        created_at: transaction.inserted_at
+      }
+    }
   end
 
   def render("account.json", %{account: account}) do

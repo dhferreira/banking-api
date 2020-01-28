@@ -11,8 +11,6 @@ defmodule BankingApiWeb.TransactionView do
   end
 
   def render("transaction.json", %{transaction: transaction}) do
-    %{id: transaction.id,
-      description: transaction.description,
-      value: transaction.value}
+    %{id: transaction.id, description: transaction.description, value: transaction.value}
   end
 end

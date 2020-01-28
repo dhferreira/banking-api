@@ -15,18 +15,18 @@ defmodule BankingApiWeb.Router do
 
   scope "/api", BankingApiWeb do
     pipe_through :api
-    post "/users/signin", UserController, :signin
-    post "/users/signup", UserController, :signup
+    post "/user/signin", UserController, :signin
+    post "/user/signup", UserController, :signup
   end
 
   scope "/api", BankingApiWeb do
     pipe_through [:api, :auth]
-    get "/users", UserController, :show_signedin_user
-    get "/user", UserController, :show_signedin_user
-    put "/user", UserController, :update_own_user
-    patch "/user", UserController, :update_own_user
-  #   post "/account/withdraw", AccountController, :withdraw
-  #   post "/account/transfer", AccountController, :transfer
+    get "/user", UserController, :show_current_user
+    put "/user", UserController, :update_current_user
+    patch "/user", UserController, :update_current_user
+    get "/account", AccountController, :show_current_account
+    post "/account/withdraw", AccountController, :withdraw
+    post "/account/transfer", AccountController, :transfer
   end
 
   scope "/api/backoffice", BankingApiWeb do
@@ -34,5 +34,4 @@ defmodule BankingApiWeb.Router do
     resources "/users", UserController, except: [:new, :edit]
     resources "/accounts", AccountController, only: [:index, :show]
   end
-
 end
