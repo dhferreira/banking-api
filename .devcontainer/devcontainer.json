@@ -1,0 +1,33 @@
+{
+  "name": "Banking API",
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
+  "extensions": [
+    "jakebecker.elixir-ls",
+    "arsen.darcula-theme-for-elixir",
+    "mikestead.dotenv",
+    "pkief.material-icon-theme",
+    "2gua.rainbow-brackets",
+    "shardulm94.trailing-spaces"
+  ],
+  "service": "phoenix",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "settings": {
+    "workbench.colorTheme": "Darcula theme for Elixir",
+    // Based on Elixir formatter's style
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    // Provides smart completion for "do" and "fn ->" blocks. Does not run the Elixir formatter.
+    "editor.formatOnType": true,
+    // Misc
+    "editor.wordBasedSuggestions": false,
+    "editor.trimAutoWhitespace": false,
+    "editor.acceptSuggestionOnEnter": "off",
+    "editor.formatOnSave": true,
+    "workbench.iconTheme": "material-icon-theme"
+  }
+}

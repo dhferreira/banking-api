@@ -1,7 +1,7 @@
-FROM elixir:alpine
+FROM elixir:1.9.4-alpine
 
 RUN apk update && \
-  apk add gcc g++ make
+  apk add gcc g++ make git
 
 # Install Phoenix packages
 RUN mix local.hex --force
