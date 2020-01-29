@@ -8,7 +8,7 @@ Example of Banking API using Elixir language.
 
 ## Running in Development Environment
 
-1. Run `docker-compose up --build`
+1. Run `docker-compose up --build` at the project's root directory
 
 Now you can access the api through [`localhost:4000`](http://localhost:4000)
 
