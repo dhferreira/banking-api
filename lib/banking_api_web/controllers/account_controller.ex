@@ -4,7 +4,7 @@ defmodule BankingApiWeb.AccountController do
   import Guardian.Plug
 
   alias BankingApi.Bank
-  #alias BankingApi.Bank.Account
+  # alias BankingApi.Bank.Account
 
   require Logger
 
@@ -48,7 +48,8 @@ defmodule BankingApiWeb.AccountController do
     try do
       current_user = current_resource(conn)
 
-      with {:ok, %{account: account, transaction: transaction}} <- Bank.withdraw(current_user.account.id, amount) do
+      with {:ok, %{account: account, transaction: transaction}} <-
+             Bank.withdraw(current_user.account.id, amount) do
         Logger.info("Account Withdraw - Sending email to client...")
         render(conn, "show.json", %{account: account, transaction: transaction})
       end
@@ -69,8 +70,9 @@ defmodule BankingApiWeb.AccountController do
       current_user = current_resource(conn)
       source_account_id = current_user.account.id
 
-      with {:ok, %{account: account, transaction: transaction}} <- Bank.transfer(source_account_id, destination_account_id , amount) do
-        Logger.info("Account Transfer - Sending email to client...")
+      with {:ok, %{account: account, transaction: transaction}} <-
+             Bank.transfer(source_account_id, destination_account_id, amount) do
+        Logger.info("Transfer Money Between Accounts - Sending email to clients...")
         render(conn, "show.json", %{account: account, transaction: transaction})
       end
     rescue
@@ -83,9 +85,6 @@ defmodule BankingApiWeb.AccountController do
 
         {:error, :bad_request}
     end
-
-
-
 
     # try do
     #   current_user = current_resource(conn)

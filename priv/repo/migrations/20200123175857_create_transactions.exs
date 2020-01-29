@@ -7,8 +7,12 @@ defmodule BankingApi.Repo.Migrations.CreateTransactions do
       add :description, :string, null: false
       add :value, :decimal, precision: 8, scale: 2, default: 0.00
 
-      add :account_id, references(:accounts, type: :binary_id, on_delete: :delete_all),
+      add :source_account_id, references(:accounts, type: :binary_id, on_delete: :delete_all),
         null: false
+
+      add :destination_account_id,
+          references(:accounts, type: :binary_id, on_delete: :delete_all),
+          null: true
 
       timestamps()
     end

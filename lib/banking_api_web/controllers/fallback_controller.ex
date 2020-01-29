@@ -35,8 +35,9 @@ defmodule BankingApiWeb.FallbackController do
     |> render("error.json", changeset: changeset)
   end
 
-  def call(conn, {:error, :invalid_value_withdraw}) do
-    body = Poison.encode!(%{errors: %{detail: "Invalid Value (Must be greater than 0.00)"}})
+  def call(conn, {:error, :invalid_amount}) do
+    body =
+      Poison.encode!(%{errors: %{detail: "Invalid Amount (Must be a number greater than 0.00)"}})
 
     conn
     |> put_resp_content_type("application/json")
@@ -51,8 +52,32 @@ defmodule BankingApiWeb.FallbackController do
     |> send_resp(400, body)
   end
 
-  def call(conn, {:error, :invalid_destination_account}) do
-    body = Poison.encode!(%{errors: %{detail: "Invalid Destination Account"}})
+  def call(conn, {:error, :destination_account_not_found}) do
+    body = Poison.encode!(%{errors: %{detail: "Destination Account Not Found"}})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(404, body)
+  end
+
+  def call(conn, {:error, :source_account_not_found}) do
+    body = Poison.encode!(%{errors: %{detail: "Source Account Not Found"}})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(404, body)
+  end
+
+  def call(conn, {:error, :accounts_not_found}) do
+    body = Poison.encode!(%{errors: %{detail: "Accounts Not Found"}})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(404, body)
+  end
+
+  def call(conn, {:error, :same_account}) do
+    body = Poison.encode!(%{errors: %{detail: "Source and Destination accounts are the same."}})
 
     conn
     |> put_resp_content_type("application/json")

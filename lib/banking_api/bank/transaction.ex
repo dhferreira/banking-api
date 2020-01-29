@@ -7,15 +7,16 @@ defmodule BankingApi.Bank.Transaction do
   schema "transactions" do
     field :description, :string
     field :value, :decimal, precision: 8, scale: 2
-    belongs_to :account, BankingApi.Bank.Account
+    belongs_to :source_account, BankingApi.Bank.Account
+    belongs_to :destination_account, BankingApi.Bank.Account
     timestamps()
   end
 
   @doc false
   def changeset(transaction, attrs) do
     transaction
-    |> cast(attrs, [:description, :value, :account_id])
-    |> validate_required([:description, :value, :account_id])
+    |> cast(attrs, [:description, :value, :source_account_id, :destination_account_id])
+    |> validate_required([:description, :value, :source_account_id])
     |> validate_number(:value, message: "invalid value")
   end
 

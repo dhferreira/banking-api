@@ -95,7 +95,7 @@ defmodule BankingApi.Bank do
     Account.changeset(account, %{})
   end
 
- @doc """
+  @doc """
   Make a witdraw from account.
 
   ## Examples
@@ -117,23 +117,26 @@ defmodule BankingApi.Bank do
       {:error, :invalid_value_withdraw}
 
   """
-  def withdraw(account_id, amount) do
+  def withdraw(source_account_id, amount) do
     try do
       amount = Decimal.cast(amount)
 
-      #check if amount is valid (> 0.00)
+      # check if amount is valid (> 0.00)
       if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
-        Batches.withdraw_money(account_id, amount)
+        Batches.withdraw_money(source_account_id, amount)
         |> Repo.transaction()
         |> case do
-          {:ok, %{save_withdraw_transaction: {updated_account, _amount, transaction}}} ->
+          {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
             {:ok, %{account: updated_account, transaction: transaction}}
-          {:error, _, :account_not_found, _} -> {:error, :account_not_found}
-          {:error, _, :insufficient_balance, _} -> {:error, :insufficient_balance}
-          {:error, _, changeset} -> {:error, :bad_request}
+
+          {:error, _, _changeset} ->
+            {:error, :bad_request}
+
+          {:error, _, err, _} ->
+            {:error, err}
         end
       else
-        {:error, :invalid_value_withdraw}
+        {:error, :invalid_amount}
       end
     rescue
       err ->
@@ -142,27 +145,55 @@ defmodule BankingApi.Bank do
         else
           err |> IO.inspect() |> Logger.error()
         end
-          {:error, :bad_request}
+
+        {:error, :bad_request}
     end
   end
 
+  @doc """
+  Make a money transfer between two accounts.
+
+  ## Examples
+
+      iex> transfer(source_account_id, destination_account_id, amount)
+      {:ok, %{account: %Account{}, transaction: %Transaction{}}}
+
+      iex> transfer(source_account_id, destination_account_id, amount)
+      {:error, :insufficient_balance}
+
+      iex> transfer(not_valid_source_account_id, destination_account_id, amount)
+      {:error, :source_account_not_found}
+
+      iex> transfer(source_account_id, not_valid_destination_account_id, amount)
+      {:error, :destination_account_not_found}
+
+      iex> transfer(account_id, destination_account_id, bad_amount)
+      {:error, :invalid_amount}
+
+      iex> transfer(source_account_id, not_valid_destination_account_id, amount)
+      {:error, :bad_request}
+
+  """
   def transfer(source_account_id, destination_account_id, amount) do
     try do
       amount = Decimal.cast(amount)
 
-      #check if amount is valid (> 0.00)
+      # check if amount is valid (> 0.00)
       if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
         Batches.transfer_money(source_account_id, destination_account_id, amount)
         |> Repo.transaction()
         |> case do
           {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
             {:ok, %{account: updated_account, transaction: transaction}}
-          {:error, _, :account_not_found, _} -> {:error, :account_not_found}
-          {:error, _, :insufficient_balance, _} -> {:error, :insufficient_balance}
-          {:error, _, changeset} -> {:error, :bad_request}
+
+          {:error, _, _changeset} ->
+            {:error, :bad_request}
+
+          {:error, _, err, _} ->
+            {:error, err}
         end
       else
-        {:error, :invalid_value}
+        {:error, :invalid_amount}
       end
     rescue
       err ->
@@ -171,7 +202,8 @@ defmodule BankingApi.Bank do
         else
           err |> IO.inspect() |> Logger.error()
         end
-          {:error, :bad_request}
+
+        {:error, :bad_request}
     end
   end
 

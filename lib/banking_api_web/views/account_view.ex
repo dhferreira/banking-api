@@ -18,13 +18,14 @@ defmodule BankingApiWeb.AccountView do
     %{
       account: %{
         id: account.id,
-        balance: account.balance,
+        balance: account.balance
       },
       transaction: %{
         id: transaction.id,
         description: transaction.description,
         value: transaction.value,
-        source_account_id: transaction.account_id,
+        source_account_id: transaction.source_account_id,
+        destination_account_id: transaction.destination_account_id || nil,
         created_at: transaction.inserted_at
       }
     }
