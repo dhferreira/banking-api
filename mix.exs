@@ -44,8 +44,7 @@ defmodule BankingApi.MixProject do
       {:argon2_elixir, "~> 2.2"},
       {:confex, "~> 3.4.0"},
       {:guardian, "~> 1.2.1"},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: true},
-      {:poison, "~> 3.1"}
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: true}
     ]
   end
 

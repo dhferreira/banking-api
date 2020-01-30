@@ -25,6 +25,7 @@ defmodule BankingApiWeb.Router do
     put "/user", UserController, :update_current_user
     patch "/user", UserController, :update_current_user
     get "/account", AccountController, :show_current_account
+    get "/account/transactions", TransactionController, :show_current_account_transaction
     post "/account/withdraw", AccountController, :withdraw
     post "/account/transfer", AccountController, :transfer
   end
@@ -32,6 +33,8 @@ defmodule BankingApiWeb.Router do
   scope "/api/backoffice", BankingApiWeb do
     pipe_through [:api, :auth, :admin]
     resources "/users", UserController, except: [:new, :edit]
-    resources "/accounts", AccountController, only: [:index, :show]
+    resources "/accounts", AccountController, only: [:index, :show, :update]
+    resources "/transactions", TransactionController, only: [:index]
+    get "/report", TransactionController, :relatorio
   end
 end

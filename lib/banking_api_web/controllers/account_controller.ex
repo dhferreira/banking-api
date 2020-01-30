@@ -4,7 +4,7 @@ defmodule BankingApiWeb.AccountController do
   import Guardian.Plug
 
   alias BankingApi.Bank
-  # alias BankingApi.Bank.Account
+  alias BankingApi.Bank.Account
 
   require Logger
 
@@ -36,13 +36,13 @@ defmodule BankingApiWeb.AccountController do
     render(conn, "show.json", account: account)
   end
 
-  # def update(conn, %{"id" => id, "account" => account_params}) do
-  #   account = Bank.get_account!(id)
+  def update(conn, %{"id" => id, "account" => account_params}) do
+    account = Bank.get_account!(id)
 
-  #   with {:ok, %Account{} = account} <- Bank.update_account(account, account_params) do
-  #     render(conn, "show.json", account: account)
-  #   end
-  # end
+    with {:ok, %Account{} = account} <- Bank.update_account(account, account_params) do
+      render(conn, "show.json", account: account)
+    end
+  end
 
   def withdraw(conn, %{"amount" => amount}) do
     try do
@@ -85,45 +85,5 @@ defmodule BankingApiWeb.AccountController do
 
         {:error, :bad_request}
     end
-
-    # try do
-    #   current_user = current_resource(conn)
-    #   source = current_user.account || throw("Invalid Source Account")
-    #   destination = Bank.get_account!(destination_account_id)
-    #   # converts to Decimal
-    #   value = Decimal.cast(value)
-
-    #   case Bank.transfer(source, destination, value) do
-    #     {:ok, %{source_account: source_account}} ->
-    #       conn
-    #       |> put_status(:ok)
-    #       |> render("show.json", %{account: source_account})
-
-    #     {:error, :source_account, _, _} ->
-    #       {:error, :insufficient_balance}
-
-    #     {:error, :transaction, _, _} ->
-    #       {:error, :bad_request}
-
-    #     {:error, :destination_account, _, _} ->
-    #       {:error, :bad_request}
-    #   end
-    # rescue
-    #   # destination account not found
-    #   Ecto.NoResultsError ->
-    #     {:error, :invalid_destination_account}
-
-    #   # invalid destination account id
-    #   Ecto.Query.CastError ->
-    #     {:error, :invalid_destination_account}
-
-    #   # invalid value
-    #   Decimal.Error ->
-    #     {:error, :invalid_value_withdraw}
-
-    #   err ->
-    #     Logger.error(err)
-    #     {:error, :bad_request}
-    # end
   end
 end

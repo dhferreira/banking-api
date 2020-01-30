@@ -23,7 +23,9 @@ defmodule BankingApi.Bank do
   def list_accounts do
     Repo.all(Account)
     |> Repo.preload([:user])
-    |> Repo.preload([:transaction])
+
+    # |> Repo.preload([:source_transaction])
+    # |> Repo.preload([:destination_transaction])
   end
 
   @doc """
@@ -43,7 +45,9 @@ defmodule BankingApi.Bank do
   def get_account!(id) do
     Repo.get!(Account, id)
     |> Repo.preload([:user])
-    |> Repo.preload([:transaction])
+
+    # |> Repo.preload([:source_transaction])
+    # |> Repo.preload([:destination_transaction])
   end
 
   @doc """
@@ -78,7 +82,7 @@ defmodule BankingApi.Bank do
   """
   def update_account(%Account{} = account, attrs) do
     account
-    |> Account.changeset(attrs)
+    |> Account.changeset_update(attrs)
     |> Repo.update()
   end
 
@@ -167,7 +171,7 @@ defmodule BankingApi.Bank do
       iex> transfer(source_account_id, not_valid_destination_account_id, amount)
       {:error, :destination_account_not_found}
 
-      iex> transfer(account_id, destination_account_id, bad_amount)
+      iex> transfer(source_account_id, destination_account_id, bad_amount)
       {:error, :invalid_amount}
 
       iex> transfer(source_account_id, not_valid_destination_account_id, amount)
@@ -220,6 +224,27 @@ defmodule BankingApi.Bank do
   """
   def list_transactions do
     Repo.all(Transaction)
+    |> Repo.preload(:source_account)
+    |> Repo.preload(:destination_account)
+  end
+
+  @doc """
+  Returns the list of transactions given Account ID.
+
+  ## Examples
+
+      iex> list_transactions_by_account(account_id)
+      [%Transaction{}, ...]
+
+  """
+  def list_transactions_by_account(account_id) do
+    query =
+      from(transaction in Transaction,
+        where: [source_account_id: ^account_id],
+        or_where: [destination_account_id: ^account_id]
+      )
+
+    Repo.all(query)
   end
 
   @doc """
@@ -302,4 +327,55 @@ defmodule BankingApi.Bank do
   def change_transaction(%Transaction{} = transaction) do
     Transaction.changeset(transaction, %{})
   end
+
+  def total_transactions() do
+    query = from t in Transaction, select: sum(t.value)
+
+    Repo.all(query)
+  end
+
+  def total_transactions(period) do
+    query =
+      Transaction
+      |> order_by([a, p], desc: fragment("rounded_date"))
+      |> group_by([a, p], [fragment("rounded_date"), fragment("date")])
+      |> (fn q ->
+            case period do
+              :year ->
+                q
+                |> select([a, p], %{
+                  date: fragment("to_char(?, 'YYYY') as date", a.inserted_at),
+                  inserted_at: fragment("date_trunc('year', ?) as rounded_date", a.inserted_at),
+                  total: sum(a.value)
+                })
+
+              :month ->
+                q
+                |> select([a, p], %{
+                  date: fragment("to_char(?, 'YYYY-MM') as date", a.inserted_at),
+                  inserted_at: fragment("date_trunc('month', ?) as rounded_date", a.inserted_at),
+                  value: sum(a.value)
+                })
+
+              :day ->
+                q
+                |> select([a, p], %{
+                  date: fragment("to_char(?, 'YYYY-MM-DD') as date", a.inserted_at),
+                  inserted_at: fragment("date_trunc('day', ?) as rounded_date", a.inserted_at),
+                  value: sum(a.value)
+                })
+            end
+          end).()
+
+    query
+    |> Repo.all()
+    |> Enum.map(fn monthly_result -> Map.delete(monthly_result, :inserted_at) end)
+  end
 end
+
+# defimpl Poison.Encoder, for: Decimal do
+#   def encode(decimal, options) do
+#      Decimal.to_string(decimal, :normal)
+#     |> Poison.Encoder.encode(options)
+#   end
+# end

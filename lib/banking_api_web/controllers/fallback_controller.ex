@@ -37,7 +37,7 @@ defmodule BankingApiWeb.FallbackController do
 
   def call(conn, {:error, :invalid_amount}) do
     body =
-      Poison.encode!(%{errors: %{detail: "Invalid Amount (Must be a number greater than 0.00)"}})
+      Jason.encode!(%{errors: %{detail: "Invalid Amount (Must be a number greater than 0.00)"}})
 
     conn
     |> put_resp_content_type("application/json")
@@ -45,7 +45,7 @@ defmodule BankingApiWeb.FallbackController do
   end
 
   def call(conn, {:error, :insufficient_balance}) do
-    body = Poison.encode!(%{errors: %{detail: "Insufficient Balance"}})
+    body = Jason.encode!(%{errors: %{detail: "Insufficient Balance"}})
 
     conn
     |> put_resp_content_type("application/json")
@@ -53,7 +53,7 @@ defmodule BankingApiWeb.FallbackController do
   end
 
   def call(conn, {:error, :destination_account_not_found}) do
-    body = Poison.encode!(%{errors: %{detail: "Destination Account Not Found"}})
+    body = Jason.encode!(%{errors: %{detail: "Destination Account Not Found"}})
 
     conn
     |> put_resp_content_type("application/json")
@@ -61,7 +61,7 @@ defmodule BankingApiWeb.FallbackController do
   end
 
   def call(conn, {:error, :source_account_not_found}) do
-    body = Poison.encode!(%{errors: %{detail: "Source Account Not Found"}})
+    body = Jason.encode!(%{errors: %{detail: "Source Account Not Found"}})
 
     conn
     |> put_resp_content_type("application/json")
@@ -69,7 +69,7 @@ defmodule BankingApiWeb.FallbackController do
   end
 
   def call(conn, {:error, :accounts_not_found}) do
-    body = Poison.encode!(%{errors: %{detail: "Accounts Not Found"}})
+    body = Jason.encode!(%{errors: %{detail: "Accounts Not Found"}})
 
     conn
     |> put_resp_content_type("application/json")
@@ -77,7 +77,7 @@ defmodule BankingApiWeb.FallbackController do
   end
 
   def call(conn, {:error, :same_account}) do
-    body = Poison.encode!(%{errors: %{detail: "Source and Destination accounts are the same."}})
+    body = Jason.encode!(%{errors: %{detail: "Source and Destination accounts are the same."}})
 
     conn
     |> put_resp_content_type("application/json")

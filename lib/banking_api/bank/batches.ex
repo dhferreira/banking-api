@@ -1,9 +1,6 @@
 defmodule BankingApi.Bank.Batches do
-  import Ecto.Query
-
   alias BankingApi.Bank.Account
   alias BankingApi.Bank.Transaction
-  alias BankingApi.Repo
   alias Ecto.Multi
 
   # PREPARE DB TRANSACTION FOR WITHDRAW MONEY
@@ -19,6 +16,7 @@ defmodule BankingApi.Bank.Batches do
   end
 
   # PREPARE DB TRANSACTION FOR TRANSFER MONEY
+  @spec transfer_money(Ecto.UUID, Ecto.UUID, Decimal.t()) :: Ecto.Multi.t()
   def transfer_money(source_acc_id, destination_acc_id, amount) do
     amount = amount |> Decimal.round(2)
 
@@ -106,12 +104,6 @@ defmodule BankingApi.Bank.Batches do
     end
   end
 
-  defp add(repo, account, amount) do
-    account
-    |> Account.changeset(%{balance: Decimal.add(account.balance, amount)})
-    |> repo.update()
-  end
-
   defp save_bank_transaction(description) do
     fn repo, %{subtract_from_account: subtract_from_account} ->
       case subtract_from_account do
@@ -136,11 +128,20 @@ defmodule BankingApi.Bank.Batches do
           }
 
           case bank_transaction(repo, transaction) do
-            {:ok, transaction} -> {:ok, {source, amount, transaction}}
-            {:error, changeset} -> {:error, :save_bank_transaction, changeset}
+            {:ok, transaction} ->
+              {:ok, {source, amount, transaction}}
+
+            {:error, changeset} ->
+              {:error, :save_bank_transaction, changeset}
           end
       end
     end
+  end
+
+  defp add(repo, account, amount) do
+    account
+    |> Account.changeset(%{balance: Decimal.add(account.balance, amount)})
+    |> repo.update()
   end
 
   defp bank_transaction(repo, params) do

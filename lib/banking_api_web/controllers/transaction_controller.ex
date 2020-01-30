@@ -1,15 +1,35 @@
 defmodule BankingApiWeb.TransactionController do
   use BankingApiWeb, :controller
 
+  import Guardian.Plug
+
   alias BankingApi.Bank
-  alias BankingApi.Bank.Transaction
+  # alias BankingApi.Bank.Transaction
 
   action_fallback BankingApiWeb.FallbackController
 
-  # def index(conn, _params) do
-  #   transactions = Bank.list_transactions()
-  #   render(conn, "index.json", transactions: transactions)
-  # end
+  def index(conn, _params) do
+    transactions = Bank.list_transactions()
+    render(conn, "index.json", transactions: transactions)
+  end
+
+  def show_current_account_transaction(conn, _params) do
+    current_user = current_resource(conn)
+
+    transactions = Bank.list_transactions_by_account(current_user.account.id)
+    render(conn, "index.json", transactions: transactions)
+  end
+
+  def relatorio(conn, _params) do
+    result = %{
+      total: List.first(Bank.total_transactions()),
+      year: Bank.total_transactions(:year),
+      month: Bank.total_transactions(:month),
+      day: Bank.total_transactions(:day)
+    }
+
+    send_resp(conn, :ok, Jason.encode!(result))
+  end
 
   # def create(conn, %{"transaction" => transaction_params}) do
   #   with {:ok, %Transaction{} = transaction} <- Bank.create_transaction(transaction_params) do

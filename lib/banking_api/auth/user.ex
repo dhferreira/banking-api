@@ -24,6 +24,7 @@ defmodule BankingApi.Auth.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:name, :email, :is_active, :password, :permission])
+    |> sanitize()
     |> validate_required([:name, :email, :password])
     |> validate_format(:email, ~r/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/)
     |> validate_length(:name, min: 3)
@@ -37,6 +38,7 @@ defmodule BankingApi.Auth.User do
   def changeset_update(user, attrs) do
     user
     |> cast(attrs, [:name, :email, :is_active, :password, :permission])
+    |> sanitize()
     |> validate_not_nil([:name, :email])
     |> validate_format(:email, ~r/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/)
     |> validate_length(:name, min: 3)
@@ -44,6 +46,12 @@ defmodule BankingApi.Auth.User do
     |> validate_inclusion(:permission, ["ADMIN", "DEFAULT"])
     |> unique_constraint(:email)
     |> put_password_hash()
+  end
+
+  defp sanitize(changeset) do
+    permission = get_field(changeset, :permission) || ""
+
+    put_change(changeset, :permission, String.upcase(permission))
   end
 
   defp put_password_hash(
