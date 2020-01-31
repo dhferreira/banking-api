@@ -40,5 +40,6 @@ defmodule BankingApiWeb.Endpoint do
     key: "_banking_api_key",
     signing_salt: "7S6yBgki"
 
+  plug CORSPlug
   plug BankingApiWeb.Router
 end

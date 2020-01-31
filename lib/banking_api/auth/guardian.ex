@@ -66,8 +66,9 @@ defmodule BankingApi.Auth.Guardian do
               %{default: [:banking]}
             end
 
-          {:ok, token, _claims} = encode_and_sign(user, perms: perms)
-          {:ok, user, token}
+          with {:ok, token, _claims} <- encode_and_sign(user, perms: perms) do
+            {:ok, user, token}
+          end
       end
     else
       {:error, :unauthorized}

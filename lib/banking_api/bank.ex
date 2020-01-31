@@ -372,10 +372,3 @@ defmodule BankingApi.Bank do
     |> Enum.map(fn monthly_result -> Map.delete(monthly_result, :inserted_at) end)
   end
 end
-
-# defimpl Poison.Encoder, for: Decimal do
-#   def encode(decimal, options) do
-#      Decimal.to_string(decimal, :normal)
-#     |> Poison.Encoder.encode(options)
-#   end
-# end

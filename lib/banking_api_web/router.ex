@@ -32,9 +32,40 @@ defmodule BankingApiWeb.Router do
 
   scope "/api/backoffice", BankingApiWeb do
     pipe_through [:api, :auth, :admin]
-    resources "/users", UserController, except: [:new, :edit]
+    resources "/users", UserController, except: [:new, :edit, :delete]
+    # Fix incompatibility with PhoenixSwagger
+    delete "/users", UserController, :delete_user
     resources "/accounts", AccountController, only: [:index, :show, :update]
     resources "/transactions", TransactionController, only: [:index]
     get "/report", TransactionController, :relatorio
+  end
+
+  scope "/doc" do
+    forward "/", PhoenixSwagger.Plug.SwaggerUI,
+      otp_app: :banking_api,
+      swagger_file: "swagger.json",
+      disable_validator: true
+  end
+
+  def swagger_info do
+    %{
+      info: %{
+        version: "1.0",
+        title: "Banking API",
+        description: "Banking API built in Elixir",
+        contact: %{
+          email: "dhferreira.ibm@gmail.com"
+        }
+      },
+      basePath: "/api",
+      schemes: ["http"],
+      securityDefinitions: %{
+        Bearer: %{
+          type: :apiKey,
+          name: "Authorization",
+          in: :header
+        }
+      }
+    }
   end
 end

@@ -38,3 +38,10 @@ config :banking_api, BankingApi.Auth.Guardian,
     default: [:banking],
     admin: [:backoffice]
   }
+
+config :banking_api, :phoenix_swagger,
+  swagger_files: %{
+    "priv/static/swagger.json" => [
+      router: BankingApiWeb.Router
+    ]
+  }

@@ -7,7 +7,7 @@ defmodule BankingApi.MixProject do
       version: "0.1.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:phoenix_swagger],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -44,7 +44,10 @@ defmodule BankingApi.MixProject do
       {:argon2_elixir, "~> 2.2"},
       {:confex, "~> 3.4.0"},
       {:guardian, "~> 1.2.1"},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: true}
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: true},
+      {:phoenix_swagger, "~> 0.8.2"},
+      {:poison, "~> 3.0"},
+      {:cors_plug, "~> 2.0"}
     ]
   end
 
