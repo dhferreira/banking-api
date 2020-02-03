@@ -33,7 +33,7 @@ import_config "#{Mix.env()}.exs"
 # Configures Guardian
 config :banking_api, BankingApi.Auth.Guardian,
   issuer: "banking_api",
-  secret_key: "oK7PaUGyaYSlHKDrfESpqWquLt12CoSgihxjcpM/nCFyj8gT1Y88/rVl62s9enJL",
+  secret_key: System.get_env("SECRET_KEY_BASE"),
   permissions: %{
     default: [:banking],
     admin: [:backoffice]

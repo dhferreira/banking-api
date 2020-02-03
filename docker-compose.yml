@@ -11,6 +11,16 @@ services:
         target: /app
     ports:
       - "4000:4000"
+    env_file:
+      - ./.env
+    environment:
+      - ENV=dev
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - PGDATABASE=${PGDATABASE}
+      - PGPORT=${PGPORT}
+      - PGHOST=${PGHOST}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
     #depends_on:
     #  - db
     command:

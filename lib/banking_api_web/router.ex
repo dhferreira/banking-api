@@ -58,7 +58,7 @@ defmodule BankingApiWeb.Router do
         }
       },
       basePath: "/api",
-      schemes: ["http"],
+      schemes: ["http", "https"],
       securityDefinitions: %{
         Bearer: %{
           type: :apiKey,
