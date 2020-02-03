@@ -21,18 +21,12 @@ RUN mix deps.get
 RUN mix deps.compile
 
 # build assets
-COPY assets assets
 COPY priv priv
-RUN cd assets && npm install && npm run deploy
 RUN mix phx.digest
 
 # build project
 COPY lib lib
 RUN mix compile
-
-# run migrations
-RUN mix ecto.create
-RUN mix ecto.migrate
 
 # build release
 RUN mix release
