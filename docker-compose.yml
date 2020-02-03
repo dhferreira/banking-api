@@ -2,7 +2,9 @@ version: '3.2'
 
 services:
   phoenix:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
     volumes:
       - type: bind
         source: .
