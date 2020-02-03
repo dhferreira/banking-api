@@ -34,10 +34,10 @@ defmodule BankingApiWeb.Router do
     pipe_through [:api, :auth, :admin]
     resources "/users", UserController, except: [:new, :edit, :delete]
     # Fix incompatibility with PhoenixSwagger
-    delete "/users", UserController, :delete_user
+    delete "/users/:id", UserController, :delete_user
     resources "/accounts", AccountController, only: [:index, :show, :update]
     resources "/transactions", TransactionController, only: [:index]
-    get "/report", TransactionController, :relatorio
+    get "/report", TransactionController, :transactions_report
   end
 
   scope "/doc" do

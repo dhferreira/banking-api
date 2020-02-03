@@ -54,6 +54,31 @@ defmodule BankingApiWeb.AccountController do
             }
           })
         end,
+      AccountTransaction:
+        swagger_schema do
+          title("Account with transaction")
+          description("An bank account with transaction information")
+
+          properties do
+            account(:object, "Account object", required: true)
+            transaction(:decimal, "Transaction Object", required: true)
+          end
+
+          example(%{
+            account: %{
+              balance: "451.00",
+              id: "2d19c9dd-048e-44f7-89f7-2908f4f40329"
+            },
+            transaction: %{
+              created_at: "2020-02-03T14:11:53",
+              description: "SAQUE",
+              destination_account_id: nil,
+              id: "20866f33-2587-4c62-ad2d-8d9619b58a20",
+              source_account_id: "2d19c9dd-048e-44f7-89f7-2908f4f40329",
+              value: "100.00"
+            }
+          })
+        end,
       Accounts:
         swagger_schema do
           title("Accounts")
@@ -95,16 +120,15 @@ defmodule BankingApiWeb.AccountController do
     operation_id("get_account_by_id")
     response(200, "Ok", Schema.ref(:AccountUser))
 
-    response(400, "Bad Request", Schema.ref(:Error),
-      examples: %{errors: %{details: "Bad Request"}}
+    response(404, "Error: Not Found", Schema.ref(:Error),
+      examples: %{errors: %{details: "Not Found"}}
     )
 
-    response(404, "Not Found", Schema.ref(:Error), examples: %{errors: %{details: "Not Found"}})
     tag("Backoffice")
     security([%{Bearer: []}])
 
     parameters do
-      id(:path, :binary_id, "Account's ID", required: true)
+      id(:path, :string, "Account's ID", required: true)
     end
   end
 
@@ -124,7 +148,7 @@ defmodule BankingApiWeb.AccountController do
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    tag("Accounts")
+    tag("Account")
     security([%{Bearer: []}])
   end
 
@@ -142,13 +166,15 @@ defmodule BankingApiWeb.AccountController do
     operation_id("update_account")
     response(200, "Ok", Schema.ref(:AccountUser))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(404, "Not Found", Schema.ref(:Error), examples: %{errors: %{details: "Not Found"}})
+    response(404, "Error: Not Found", Schema.ref(:Error),
+      examples: %{errors: %{details: "Not Found"}}
+    )
 
-    response(422, "Unprocessable Entity", Schema.ref(:Error),
+    response(422, "Error: Unprocessable Entity", Schema.ref(:Error),
       examples: %{errors: %{balance: "must be greater than or equal to 0"}}
     )
 
@@ -156,7 +182,7 @@ defmodule BankingApiWeb.AccountController do
     security([%{Bearer: []}])
 
     parameters do
-      id(:path, :binary_id, "Account's ID", required: true)
+      id(:path, :string, "Account's ID", required: true)
     end
 
     parameters do
@@ -171,7 +197,9 @@ defmodule BankingApiWeb.AccountController do
             }
           },
           example: %{
-            balance: 1253.00
+            account: %{
+              balance: 1253.00
+            }
           }
         },
         "Account Object",
@@ -185,6 +213,46 @@ defmodule BankingApiWeb.AccountController do
 
     with {:ok, %Account{} = account} <- Bank.update_account(account, account_params) do
       render(conn, "show.json", account: account)
+    end
+  end
+
+  swagger_path :withdraw do
+    post("/account/withdraw")
+    summary("Withdraw Money")
+    description("Withdraws money from the current account")
+    operation_id("account_withdraw")
+    response(200, "Ok", Schema.ref(:AccountTransaction))
+
+    response(400, "Error: Bad Request", Schema.ref(:Error),
+      examples: [
+        %{errors: %{details: "Bad Request"}},
+        %{errors: %{details: "Insufficient Balance"}},
+        %{errors: %{details: "Invalid amount"}},
+        %{errors: %{details: "Not valid account"}}
+      ]
+    )
+
+    tag("Account")
+    security([%{Bearer: []}])
+
+    parameters do
+      body(
+        :body,
+        %PhoenixSwagger.Schema{
+          type: :object,
+          properties: %{
+            amount: %PhoenixSwagger.Schema{
+              type: :number,
+              description: "Withdraw amount. Must be number greater than zero"
+            }
+          },
+          example: %{
+            amount: 1253.00
+          }
+        },
+        "Withdraw details",
+        required: true
+      )
     end
   end
 
@@ -206,6 +274,59 @@ defmodule BankingApiWeb.AccountController do
         end
 
         {:error, :bad_request}
+    end
+  end
+
+  swagger_path :transfer do
+    post("/account/transfer")
+    summary("Transfer Money between accounts")
+    description("Transfers money from the current account to the destination account")
+    operation_id("account_transfer")
+    response(200, "Ok", Schema.ref(:AccountTransaction))
+
+    response(400, "Error: Bad Request", Schema.ref(:Error),
+      examples: [
+        %{errors: %{details: "Bad Request"}},
+        %{errors: %{details: "Insufficient Balance"}},
+        %{errors: %{details: "Invalid amount"}},
+        %{errors: %{details: "Source and Destination accounts are the same."}}
+      ]
+    )
+
+    response(404, "Error: Resource Not Found", Schema.ref(:Error),
+      examples: [
+        %{errors: %{details: "Source Account Not Found"}},
+        %{errors: %{details: "Destination Account Not Found"}},
+        %{errors: %{details: "Accounts not found."}}
+      ]
+    )
+
+    tag("Account")
+    security([%{Bearer: []}])
+
+    parameters do
+      body(
+        :body,
+        %PhoenixSwagger.Schema{
+          type: :object,
+          properties: %{
+            amount: %PhoenixSwagger.Schema{
+              type: :number,
+              description: "Transfer amount. Must be number greater than zero"
+            },
+            destination_account_id: %PhoenixSwagger.Schema{
+              type: :string,
+              description: "UUID of destination account"
+            }
+          },
+          example: %{
+            amount: 1253.00,
+            destination_account_id: "0033f5dd-8fe1-4873-904b-21fd1d5b3d08"
+          }
+        },
+        "Transfer details",
+        required: true
+      )
     end
   end
 

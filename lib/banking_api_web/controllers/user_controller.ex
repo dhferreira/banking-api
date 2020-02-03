@@ -138,15 +138,15 @@ defmodule BankingApiWeb.UserController do
   swagger_path :create do
     post("/backoffice/users")
     summary("Create a new User")
-    description("Record a new User. Permission Needed: ADMIN")
+    description("Records a new User. Permission Needed: ADMIN")
     operation_id("create_user")
     response(200, "Ok", Schema.ref(:UserAccount))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(422, "Unprocessable Entity", Schema.ref(:Error),
+    response(422, "Error: Unprocessable Entity", Schema.ref(:Error),
       examples: %{errors: %{email: "has already been taken"}}
     )
 
@@ -182,10 +182,12 @@ defmodule BankingApiWeb.UserController do
             }
           },
           example: %{
-            name: "João da Silva",
-            email: "joao.silva@gmail.com",
-            password: "joao1234",
-            permission: "ADMIN"
+            user: %{
+              name: "João da Silva",
+              email: "joao.silva@gmail.com",
+              password: "joao1234",
+              permission: "ADMIN"
+            }
           }
         },
         "User Object",
@@ -216,16 +218,19 @@ defmodule BankingApiWeb.UserController do
     operation_id("get_user_by_id")
     response(200, "Ok", Schema.ref(:UserAccount))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(404, "Not Found", Schema.ref(:Error), examples: %{errors: %{details: "Not Found"}})
+    response(404, "Error: Not Found", Schema.ref(:Error),
+      examples: %{errors: %{details: "Not Found"}}
+    )
+
     tag("Backoffice")
     security([%{Bearer: []}])
 
     parameters do
-      id(:path, :binary_id, "User's ID", required: true)
+      id(:path, :string, "User's ID", required: true)
     end
   end
 
@@ -241,11 +246,11 @@ defmodule BankingApiWeb.UserController do
     operation_id("get_current_user")
     response(200, "Ok", Schema.ref(:UserAccount))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    tag("Users")
+    tag("User")
     security([%{Bearer: []}])
   end
 
@@ -261,13 +266,15 @@ defmodule BankingApiWeb.UserController do
     operation_id("update_user")
     response(200, "Ok", Schema.ref(:UserAccount))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(404, "Not Found", Schema.ref(:Error), examples: %{errors: %{details: "Not Found"}})
+    response(404, "Error: Not Found", Schema.ref(:Error),
+      examples: %{errors: %{details: "Not Found"}}
+    )
 
-    response(422, "Unprocessable Entity", Schema.ref(:Error),
+    response(422, "Error: Unprocessable Entity", Schema.ref(:Error),
       examples: %{errors: %{email: "has already been taken"}}
     )
 
@@ -275,7 +282,7 @@ defmodule BankingApiWeb.UserController do
     security([%{Bearer: []}])
 
     parameters do
-      id(:path, :binary_id, "User's ID", required: true)
+      id(:path, :string, "User's ID", required: true)
     end
 
     parameters do
@@ -306,10 +313,12 @@ defmodule BankingApiWeb.UserController do
             }
           },
           example: %{
-            name: "Maria da Silva",
-            email: "maria.silva@gmail.com",
-            password: "maria1234",
-            permission: "DEFAULT"
+            user: %{
+              name: "Maria da Silva",
+              email: "maria.silva@gmail.com",
+              password: "maria1234",
+              permission: "DEFAULT"
+            }
           }
         },
         "User Object",
@@ -327,23 +336,26 @@ defmodule BankingApiWeb.UserController do
   end
 
   swagger_path :update_current_user do
-    put("/users")
+    put("/user")
     summary("Update current user")
-    description("Updates the current User logged in. Permission Needed: DEFAULT | ADMIN")
+
+    description(
+      "Updates the current User logged in. Permission Needed: DEFAULT | ADMIN\nIf user's permission is not ADMIN, \"permission\" and \"is_active\" fields are not updated"
+    )
+
     operation_id("update_current_user")
+
     response(200, "Ok", Schema.ref(:UserAccount))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(404, "Not Found", Schema.ref(:Error), examples: %{errors: %{details: "Not Found"}})
-
-    response(422, "Unprocessable Entity", Schema.ref(:Error),
+    response(422, "Error: Unprocessable Entity", Schema.ref(:Error),
       examples: %{errors: %{email: "has already been taken"}}
     )
 
-    tag("Users")
+    tag("User")
     security([%{Bearer: []}])
 
     parameters do
@@ -374,10 +386,12 @@ defmodule BankingApiWeb.UserController do
             }
           },
           example: %{
-            name: "Maria da Silva",
-            email: "maria.silva@gmail.com",
-            password: "maria1234",
-            permission: "DEFAULT"
+            user: %{
+              name: "Maria da Silva",
+              email: "maria.silva@gmail.com",
+              password: "maria1234",
+              permission: "DEFAULT"
+            }
           }
         },
         "User Object",
@@ -392,6 +406,7 @@ defmodule BankingApiWeb.UserController do
     user_params =
       if current_user.permission !== "ADMIN" do
         Map.delete(user_params, "permission")
+        Map.delete(user_params, "is_active")
       else
         user_params
       end
@@ -407,12 +422,16 @@ defmodule BankingApiWeb.UserController do
     description("Delestes an existing User. Permission Needed: ADMIN")
     operation_id("delete_user")
     response(204, "No Content")
-    response(404, "Not Found", Schema.ref(:Error), examples: %{errors: %{details: "Not Found"}})
+
+    response(404, "Error: Not Found", Schema.ref(:Error),
+      examples: %{errors: %{details: "Not Found"}}
+    )
+
     tag("Backoffice")
     security([%{Bearer: []}])
 
     parameters do
-      id(:path, :binary_id, "User's ID", required: true)
+      id(:path, :string, "User's ID", required: true)
     end
   end
 
@@ -434,17 +453,17 @@ defmodule BankingApiWeb.UserController do
 
     operation_id("signup")
 
-    response(200, "Ok", Schema.ref(:UserAuth))
+    response(201, "Created", Schema.ref(:UserAuth))
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(422, "Unprocessable Entity", Schema.ref(:Error),
+    response(422, "Error: Unprocessable Entity", Schema.ref(:Error),
       examples: %{errors: %{email: "Can't be blank"}}
     )
 
-    tag("Users")
+    tag("User")
 
     parameters do
       user(
@@ -465,13 +484,16 @@ defmodule BankingApiWeb.UserController do
               description: "User's password"
             }
           },
+          required: ["name", "email", "password"],
           example: %{
-            name: "João da Silva",
-            email: "joao.silva@gmail.com",
-            password: "joao1234"
+            user: %{
+              name: "João da Silva",
+              email: "joao.silva@gmail.com",
+              password: "joao1234"
+            }
           }
         },
-        "User Object",
+        "The user to be created",
         required: true
       )
     end
@@ -509,32 +531,41 @@ defmodule BankingApiWeb.UserController do
 
     response(
       200,
-      "Ok",
+      "OK",
       Schema.ref(:UserAuth)
     )
 
-    response(400, "Bad Request", Schema.ref(:Error),
+    response(400, "Error: Bad Request", Schema.ref(:Error),
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    response(422, "Unprocessable Entity", Schema.ref(:Error),
-      examples: %{errors: %{email: "has already been taken"}}
+    response(401, "Error: Unauthorized", Schema.ref(:Error),
+      examples: %{errors: %{detail: "Unauthorized"}}
     )
 
-    tag("Users")
+    tag("User")
 
     parameters do
-      email(
+      credentials(
         :body,
-        %PhoenixSwagger.Schema{type: :string, example: "email@email.com.br"},
-        "User's email",
-        required: true
-      )
-
-      password(
-        :body,
-        %PhoenixSwagger.Schema{type: :string, example: "teste12345"},
-        "User's password",
+        %PhoenixSwagger.Schema{
+          type: :object,
+          properties: %{
+            email: %PhoenixSwagger.Schema{
+              type: :string,
+              description: "User's password"
+            },
+            password: %PhoenixSwagger.Schema{
+              type: :string,
+              description: "User's password"
+            }
+          },
+          example: %{
+            email: "joao.silva@gmail.com",
+            password: "joao1234"
+          }
+        },
+        "User's credentials for signing user in",
         required: true
       )
     end

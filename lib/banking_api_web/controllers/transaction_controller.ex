@@ -40,6 +40,66 @@ defmodule BankingApiWeb.TransactionController do
           description("All Bank Transactions")
           type(:array)
           items(Schema.ref(:Transaction))
+        end,
+      Report:
+        swagger_schema do
+          title("Report")
+          description("An transactions report")
+
+          properties do
+            day(:array, "Transactional total by day",
+              required: true,
+              items: Schema.ref(:ReportItem)
+            )
+
+            month(:array, "Transactional total by month",
+              required: true,
+              items: Schema.ref(:ReportItem)
+            )
+
+            year(:array, "Transactional total by year",
+              required: true,
+              items: Schema.ref(:ReportItem)
+            )
+
+            total(:number, "Transactional total over time", required: true)
+          end
+
+          example(%{
+            day: [
+              %{
+                date: "2020-01-30",
+                value: "200.00"
+              },
+              %{
+                date: "2020-01-16",
+                value: "150.00"
+              }
+            ],
+            month: [
+              %{
+                date: "2020-01",
+                value: "350.00"
+              }
+            ],
+            total: "350.00",
+            year: [
+              %{
+                date: "2020",
+                total: "350.00"
+              }
+            ]
+          })
+        end,
+      ReportItem:
+        swagger_schema do
+          title("ReportItem")
+          description("An transactions report item")
+
+          properties do
+            date(:string, "String representation of the date", required: true)
+            value(:number, "Trasactional total for the given date", required: true)
+          end
         end
     }
   end
@@ -70,7 +130,7 @@ defmodule BankingApiWeb.TransactionController do
       examples: %{errors: %{details: "Bad Request"}}
     )
 
-    tag("Accounts")
+    tag("Account")
     security([%{Bearer: []}])
   end
 
@@ -81,7 +141,53 @@ defmodule BankingApiWeb.TransactionController do
     render(conn, "index.json", transactions: transactions)
   end
 
-  def relatorio(conn, _params) do
+  swagger_path :transactions_report do
+    get("/backoffice/report")
+    summary("Get Transactional Report")
+
+    description(
+      "Returns a report of Total of Transactions by year, month, day, and over all time. Permission needed: ADMIN"
+    )
+
+    operation_id("get_transactions_report")
+
+    response(200, "Ok", Schema.ref(:Report),
+      example: %{
+        day: [
+          %{
+            date: "2020-01-30",
+            value: "200.00"
+          },
+          %{
+            date: "2020-01-16",
+            value: "150.00"
+          }
+        ],
+        month: [
+          %{
+            date: "2020-01",
+            value: "350.00"
+          }
+        ],
+        total: "350.00",
+        year: [
+          %{
+            date: "2020",
+            total: "350.00"
+          }
+        ]
+      }
+    )
+
+    response(400, "Bad Request", Schema.ref(:Error),
+      examples: %{errors: %{details: "Bad Request"}}
+    )
+
+    tag("Backoffice")
+    security([%{Bearer: []}])
+  end
+
+  def transactions_report(conn, _params) do
     result = %{
       total: List.first(Bank.total_transactions()),
       year: Bank.total_transactions(:year),

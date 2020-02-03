@@ -118,7 +118,7 @@ defmodule BankingApi.Bank do
       {:error, %Changeset{}}
 
       iex> withdraw(account, -100.00)
-      {:error, :invalid_value_withdraw}
+      {:error, :invalid_amount}
 
   """
   def withdraw(source_account_id, amount) do
@@ -173,6 +173,9 @@ defmodule BankingApi.Bank do
 
       iex> transfer(source_account_id, destination_account_id, bad_amount)
       {:error, :invalid_amount}
+
+      iex> transfer(source_account_id, source_account_id, bad_amount)
+      {:error, :same_account}
 
       iex> transfer(source_account_id, not_valid_destination_account_id, amount)
       {:error, :bad_request}
