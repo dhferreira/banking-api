@@ -143,16 +143,29 @@ defmodule BankingApi.Bank.Batches do
 
   defp save_bank_transaction(description) do
     fn repo, %{subtract_from_account: subtract_from_account} ->
-      transaction = %{
-        value: subtract_from_account.amount,
-        source_account_id: subtract_from_account.source.id,
-        description: description,
-        destination_account_id: subtract_from_account.destination.id || nil
-      }
+      {source, amount, transaction} =
+        case subtract_from_account do
+          {source, amount} ->
+            {source, amount,
+             %{
+               value: amount,
+               source_account_id: source.id,
+               description: description
+             }}
+
+          {source, destination, amount} ->
+            {source, amount,
+             %{
+               value: amount,
+               source_account_id: source.id,
+               destination_account_id: destination.id,
+               description: description
+             }}
+        end
 
       case bank_transaction(repo, transaction) do
         {:ok, transaction} ->
-          {:ok, {subtract_from_account.source, subtract_from_account.amount, transaction}}
+          {:ok, {source, amount, transaction}}
 
         {:error, changeset} ->
           {:error, :save_bank_transaction, changeset}

@@ -510,7 +510,7 @@ defmodule BankingApiWeb.UserController do
         # set default permissions
         perms = %{default: [:banking]}
 
-        with {:ok, token, _claims} <- Guardian.encode_and_sign(user, perms: perms) do
+        with {:ok, token, _claims} <- Guardian.encode_and_sign(user, %{perms: perms}) do
           conn
           |> put_status(:created)
           |> put_resp_header("location", Routes.user_path(conn, :show, user))
@@ -571,15 +571,17 @@ defmodule BankingApiWeb.UserController do
     end
   end
 
-  def signin(conn, body) do
-    %{"email" => email, "password" => password} = body
+  def signin(conn, credentials) do
+    try do
+      %{"email" => email, "password" => password} = credentials
 
-    with {:ok, user, token} <- Guardian.authenticate(email, password) do
-      conn
-      |> put_status(:ok)
-      |> render("user.json", %{user: user, token: token})
+      with {:ok, user, token} <- Guardian.authenticate(email, password) do
+        conn
+        |> put_status(:ok)
+        |> render("user.json", %{user: user, token: token})
+      end
+    rescue
+      _ -> {:error, :bad_request}
     end
-  catch
-    _ -> {:error, :bad_request}
   end
 end
