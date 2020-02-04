@@ -48,6 +48,8 @@ defmodule BankingApiWeb.Router do
   end
 
   def swagger_info do
+    schemes = if System.get_env("MIX_ENV") === "dev", do: ["http"], else: ["https"]
+
     %{
       info: %{
         version: "1.0",
@@ -58,7 +60,7 @@ defmodule BankingApiWeb.Router do
         }
       },
       basePath: "/api",
-      schemes: ["http", "https"],
+      schemes: schemes,
       securityDefinitions: %{
         Bearer: %{
           type: :apiKey,
