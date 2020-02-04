@@ -14,7 +14,7 @@ config :banking_api,
 # Configures the endpoint
 config :banking_api, BankingApiWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "irhFvnri8lN2BBBUj64jo6vcMgN7AnmuSt8IMLb3EeCdQRWpGheif5U4Ost08y62",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: BankingApiWeb.ErrorView, accepts: ~w(json)],
   pubsub: [name: BankingApi.PubSub, adapter: Phoenix.PubSub.PG2]
 
