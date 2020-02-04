@@ -147,12 +147,15 @@ defmodule BankingApi.Bank.Batches do
         value: subtract_from_account.amount,
         source_account_id: subtract_from_account.source.id,
         description: description,
-        destination_account_id: subtract_from_account.destination.id || nil,
+        destination_account_id: subtract_from_account.destination.id || nil
       }
 
       case bank_transaction(repo, transaction) do
-        {:ok, transaction} -> {:ok, {subtract_from_account.source, subtract_from_account.amount, transaction}}
-        {:error, changeset} -> {:error, :save_bank_transaction, changeset}
+        {:ok, transaction} ->
+          {:ok, {subtract_from_account.source, subtract_from_account.amount, transaction}}
+
+        {:error, changeset} ->
+          {:error, :save_bank_transaction, changeset}
       end
     end
   end

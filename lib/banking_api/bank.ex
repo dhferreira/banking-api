@@ -146,7 +146,7 @@ defmodule BankingApi.Bank do
       if err.message do
         Logger.error(err.message)
       else
-        Logger.error("#{inspect err}")
+        Logger.error("#{inspect(err)}")
       end
 
       {:error, :bad_request}
@@ -204,7 +204,7 @@ defmodule BankingApi.Bank do
       if err.message do
         Logger.error(err.message)
       else
-        Logger.error("#{inspect err}")
+        Logger.error("#{inspect(err)}")
       end
 
       {:error, :bad_request}
