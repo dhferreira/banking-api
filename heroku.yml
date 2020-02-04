@@ -3,12 +3,13 @@ setup:
         MIX_ENV: prod
         SECRET_KEY_BASE: teste
         DATABASE_URL: teste
+        RENDER_EXTERNAL_HOSTNAME: banking-api-elixir.herokuapp.com
 build:
     docker:
         web: ./Dockerfile
     config:
-        MIX_ENV: prod
-        SECRET_KEY_BASE: teste
-        DATABASE_URL: teste2
+        MIX_ENV: $MIX_ENV
+        SECRET_KEY_BASE: $SECRET_KEY_BASE
+        DATABASE_URL: $DATABASE_URL
 run:
     web: bin/banking_api start

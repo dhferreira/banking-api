@@ -2,6 +2,7 @@
 # from environment variables. You can also hardcode secrets,
 # although such is generally not recommended and you have to
 # remember to add this file to your .gitignore.
+# use Mix.Config
 import Config
 
 database_url =
@@ -12,7 +13,7 @@ database_url =
     """
 
 config :banking_api, BankingApi.Repo,
-  ssl: true,
+  # ssl: true,
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 

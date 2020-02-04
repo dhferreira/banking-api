@@ -1,4 +1,5 @@
-use Mix.Config
+# use Mix.Config
+import Config
 
 # Configure your database
 config :banking_api, BankingApi.Repo,

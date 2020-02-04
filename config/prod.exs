@@ -1,4 +1,5 @@
-use Mix.Config
+# use Mix.Config
+import Config
 
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
@@ -10,10 +11,10 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :banking_api, BankingApiWeb.Endpoint,
-  http: [port: {:system, "PORT"}],
   url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
-  #cache_static_manifest: "priv/static/cache_manifest.json"
+
+# cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
