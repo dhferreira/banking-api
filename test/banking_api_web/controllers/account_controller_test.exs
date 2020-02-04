@@ -152,6 +152,176 @@ defmodule BankingApiWeb.AccountControllerTest do
     end
   end
 
+  describe "withdraw" do
+    setup [:create_user]
+
+    test "withdraw money when given valid amount and balance is enough", %{conn: conn, user: user} do
+      %{:id => id} = user.account
+
+      conn = post(conn, Routes.account_path(conn, :withdraw, %{amount: "100"}))
+
+      assert %{
+               "account" => %{
+                 "id" => ^id,
+                 "balance" => "900.00"
+               },
+               "transaction" => transaction
+             } = json_response(conn, 200)["data"]
+
+      conn = post(conn, Routes.account_path(conn, :withdraw, %{amount: "500"}))
+
+      assert %{
+               "account" => %{
+                 "id" => ^id,
+                 "balance" => "400.00"
+               },
+               "transaction" => transaction
+             } = json_response(conn, 200)["data"]
+    end
+
+    test "returns error response when Account's balance is not enough for the amount withdraw request",
+         %{conn: conn} do
+      conn = post(conn, Routes.account_path(conn, :withdraw, %{amount: "20000"}))
+
+      assert %{
+               "errors" => %{
+                 "detail" => "Insufficient Balance"
+               }
+             } == json_response(conn, 400)
+    end
+
+    test "returns error response when given invalid amount (lower or equal to 0.00)",
+         %{conn: conn} do
+      conn = post(conn, Routes.account_path(conn, :withdraw, %{amount: "-25"}))
+
+      assert %{
+               "errors" => %{
+                 "detail" => "Invalid Amount (Must be a number greater than 0.00)"
+               }
+             } == json_response(conn, 400)
+    end
+  end
+
+  describe "transfer" do
+    setup [:create_admin_user]
+
+    test "transfer money when given valid amount, source account balance is enough, and destination account is valid",
+         %{conn: conn, user: user} do
+      %{:id => source_account_id} = user.account
+
+      destinatio_user = fixture(:user)
+      %{:id => destination_account_id} = destinatio_user.account
+
+      conn =
+        post(
+          conn,
+          Routes.account_path(conn, :transfer, %{
+            amount: "100",
+            destination_account_id: destination_account_id
+          })
+        )
+
+      assert %{
+               "account" => %{
+                 "id" => ^source_account_id,
+                 "balance" => "900.00"
+               },
+               "transaction" => %{
+                 "value" => "100.00",
+                 "source_account_id" => ^source_account_id,
+                 "destination_account_id" => ^destination_account_id
+               }
+             } = json_response(conn, 200)["data"]
+
+      conn = get(conn, Routes.account_path(conn, :show, destination_account_id))
+
+      assert %{
+               "id" => ^destination_account_id,
+               "balance" => "1100.00"
+             } = json_response(conn, 200)["data"]
+    end
+
+    test "returns error response when Account's balance is not enough for the amount withdraw request",
+         %{conn: conn} do
+      destinatio_user = fixture(:user)
+      %{:id => destination_account_id} = destinatio_user.account
+
+      conn =
+        post(
+          conn,
+          Routes.account_path(conn, :transfer, %{
+            amount: "20000",
+            destination_account_id: destination_account_id
+          })
+        )
+
+      assert %{
+               "errors" => %{
+                 "detail" => "Insufficient Balance"
+               }
+             } == json_response(conn, 400)
+    end
+
+    test "returns error response when given invalid amount (lower or equal to 0.00)",
+         %{conn: conn} do
+      destinatio_user = fixture(:user)
+      %{:id => destination_account_id} = destinatio_user.account
+
+      conn =
+        post(
+          conn,
+          Routes.account_path(conn, :withdraw, %{
+            amount: "-25",
+            destination_account_id: destination_account_id
+          })
+        )
+
+      assert %{
+               "errors" => %{
+                 "detail" => "Invalid Amount (Must be a number greater than 0.00)"
+               }
+             } == json_response(conn, 400)
+    end
+
+    test "returns error response when given invalid destination account",
+         %{conn: conn} do
+      conn =
+        post(
+          conn,
+          Routes.account_path(conn, :transfer, %{
+            amount: "100",
+            destination_account_id: Ecto.UUID.generate()
+          })
+        )
+
+      assert %{
+               "errors" => %{
+                 "detail" => "Destination Account Not Found"
+               }
+             } == json_response(conn, 404)
+    end
+
+    test "returns error response when source and destination account are the same",
+         %{conn: conn, user: user} do
+      %{:id => source_account_id} = user.account
+
+      conn =
+        post(
+          conn,
+          Routes.account_path(conn, :transfer, %{
+            amount: "100",
+            destination_account_id: source_account_id
+          })
+        )
+
+      assert %{
+               "errors" => %{
+                 "detail" => "Source and Destination accounts are the same."
+               }
+             } == json_response(conn, 400)
+    end
+  end
+
   defp create_user(%{conn: conn}) do
     fixture(:user)
     {:ok, user, token} = Guardian.authenticate(@create_attrs.email, @create_attrs.password)

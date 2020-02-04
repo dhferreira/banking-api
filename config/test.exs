@@ -1,13 +1,16 @@
 # use Mix.Config
 import Config
 
+database_url =
+  System.get_env("DATABASE_URL_TEST") ||
+    raise """
+    environment variable DATABASE_URL_TEST is missing.
+    For example: ecto://USER:PASS@HOST/DATABASE
+    """
+
 # Configure your database
 config :banking_api, BankingApi.Repo,
-  username: System.get_env("PGUSER") || "postgres",
-  password: System.get_env("PGPASSWORD") || "postgres",
-  database: System.get_env("PGDATABASE") || "postgres",
-  hostname: System.get_env("PGHOST") || "localhost",
-  port: System.get_env("PGPORT") || 5432,
+  url: database_url,
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,

@@ -227,7 +227,7 @@ defmodule BankingApiWeb.AccountController do
       examples: [
         %{errors: %{details: "Bad Request"}},
         %{errors: %{details: "Insufficient Balance"}},
-        %{errors: %{details: "Invalid amount"}},
+        %{errors: %{details: "Invalid Amount (Must be a number greater than 0.00)"}},
         %{errors: %{details: "Not valid account"}}
       ]
     )

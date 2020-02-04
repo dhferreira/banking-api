@@ -32,7 +32,6 @@ defmodule BankingApi.BankTest do
 
       account
       |> Repo.preload([:user])
-      |> Repo.preload([:transaction])
     end
 
     test "list_accounts/0 returns all accounts" do
@@ -122,7 +121,7 @@ defmodule BankingApi.BankTest do
 
       {:ok, transaction} =
         attrs
-        |> Enum.into(%{account_id: account.id})
+        |> Enum.into(%{source_account_id: account.id})
         |> Enum.into(@valid_attrs)
         |> Bank.create_transaction()
 
@@ -130,7 +129,11 @@ defmodule BankingApi.BankTest do
     end
 
     test "list_transactions/0 returns all transactions" do
-      transaction = transaction_fixture()
+      transaction =
+        transaction_fixture()
+        |> Repo.preload(:source_account)
+        |> Repo.preload(:destination_account)
+
       assert Bank.list_transactions() == [transaction]
     end
 
@@ -144,7 +147,7 @@ defmodule BankingApi.BankTest do
 
       assert {:ok, %Transaction{} = transaction} =
                @valid_attrs
-               |> Enum.into(%{account_id: account.id})
+               |> Enum.into(%{source_account_id: account.id})
                |> Bank.create_transaction()
 
       assert transaction.description == "some description"

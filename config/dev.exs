@@ -1,15 +1,18 @@
 # use Mix.Config
 import Config
 
+database_url =
+  System.get_env("DATABASE_URL") ||
+    raise """
+    environment variable DATABASE_URL is missing.
+    For example: ecto://USER:PASS@HOST/DATABASE
+    """
+
 # Configure your database
 config :banking_api, BankingApi.Repo,
-  username: System.get_env("PGUSER") || "postgres",
-  password: System.get_env("PGPASSWORD") || "postgres",
-  database: System.get_env("PGDATABASE") || "postgres",
-  hostname: System.get_env("PGHOST") || "localhost",
-  port: System.get_env("PGPORT") || 5432,
+  url: database_url,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

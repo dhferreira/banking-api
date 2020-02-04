@@ -34,10 +34,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
-
 # Configures Guardian
 config :banking_api, BankingApi.Auth.Guardian,
   issuer: "banking_api",
@@ -53,3 +49,7 @@ config :banking_api, :phoenix_swagger,
       router: BankingApiWeb.Router
     ]
   }
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{Mix.env()}.exs"

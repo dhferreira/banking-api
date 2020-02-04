@@ -48,7 +48,7 @@ defmodule BankingApiWeb.Router do
   end
 
   def swagger_info do
-    schemes = if System.get_env("MIX_ENV") === "dev", do: ["http"], else: ["https"]
+    schemes = if System.get_env("MIX_ENV") === "prod", do: ["https"], else: ["http"]
 
     %{
       info: %{

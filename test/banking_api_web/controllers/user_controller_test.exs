@@ -421,7 +421,7 @@ defmodule BankingApiWeb.UserControllerTest do
                "id" => ^id,
                "name" => "some updated name",
                "email" => "email_updated@email.com.br",
-               "is_active" => false,
+               "is_active" => true,
                "permission" => "DEFAULT",
                "account" => account
              } = json_response(conn, 200)["data"]
@@ -466,7 +466,7 @@ defmodule BankingApiWeb.UserControllerTest do
     test "deletes chosen user", %{conn: conn} do
       user = fixture(:user)
 
-      conn = delete(conn, Routes.user_path(conn, :delete, user))
+      conn = delete(conn, Routes.user_path(conn, :delete_user, user))
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
@@ -478,7 +478,7 @@ defmodule BankingApiWeb.UserControllerTest do
       fixture(:user)
 
       assert_error_sent 404, fn ->
-        delete(conn, Routes.user_path(conn, :delete, Ecto.UUID.generate()))
+        delete(conn, Routes.user_path(conn, :delete_user, Ecto.UUID.generate()))
       end
     end
   end
@@ -488,7 +488,7 @@ defmodule BankingApiWeb.UserControllerTest do
 
     test "raises unauthorized when deleting an user", %{conn: conn} do
       user = fixture(:admin_user)
-      conn = get(conn, Routes.user_path(conn, :delete, user))
+      conn = get(conn, Routes.user_path(conn, :delete_user, user))
 
       assert %{
                "errors" => %{

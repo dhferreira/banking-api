@@ -403,10 +403,10 @@ defmodule BankingApiWeb.UserController do
   def update_current_user(conn, %{"user" => user_params}) do
     current_user = current_resource(conn)
 
+    # No ADMIN permission can't update permission and is_active
     user_params =
       if current_user.permission !== "ADMIN" do
-        Map.delete(user_params, "permission")
-        Map.delete(user_params, "is_active")
+        user_params |> Map.delete("permission") |> Map.delete("is_active")
       else
         user_params
       end

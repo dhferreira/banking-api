@@ -189,13 +189,15 @@ defmodule BankingApiWeb.TransactionController do
 
   def transactions_report(conn, _params) do
     result = %{
-      total: List.first(Bank.total_transactions()),
+      total: List.first(Bank.total_transactions()) || "0.00",
       year: Bank.total_transactions(:year),
       month: Bank.total_transactions(:month),
       day: Bank.total_transactions(:day)
     }
 
-    send_resp(conn, :ok, Jason.encode!(result))
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: result}))
   end
 
   # def create(conn, %{"transaction" => transaction_params}) do
