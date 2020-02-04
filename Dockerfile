@@ -14,6 +14,8 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV=prod
 
+RUN env
+
 # install mix dependencies
 COPY mix.exs mix.lock ./
 COPY config config
