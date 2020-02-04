@@ -11,6 +11,8 @@ config :banking_api,
   ecto_repos: [BankingApi.Repo],
   generators: [binary_id: true]
 
+token = System.get_env("SECRET_KEY_BASE") || raise "Error on secret"
+
 # Configures the endpoint
 config :banking_api, BankingApiWeb.Endpoint,
   url: [host: "localhost"],
