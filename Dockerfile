@@ -12,7 +12,9 @@ RUN mix local.hex --force && \
     mix local.rebar --force
 
 # set build ENV
+# !!!! UPDATE SECRET WITH YOUR SECRET mix phx.gen.secret !!!!
 ENV MIX_ENV=prod
+ENV SECRET_KEY_BASE=
 
 RUN env
 
