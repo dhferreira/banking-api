@@ -1,4 +1,7 @@
 defmodule BankingApi.Bank.Batches do
+  @moduledoc """
+  Module responsible for prepare DB transactions for account withdraw and account transfer money actions
+  """
   alias BankingApi.Bank.Account
   alias BankingApi.Bank.Transaction
   alias Ecto.Multi
@@ -104,36 +107,52 @@ defmodule BankingApi.Bank.Batches do
     end
   end
 
+  # defp save_bank_transaction(description) do
+  #   fn repo, %{subtract_from_account: subtract_from_account} ->
+  #     case subtract_from_account do
+  #       {source, amount} ->
+  #         transaction = %{
+  #           value: amount,
+  #           description: description,
+  #           source_account_id: source.id
+  #         }
+
+  #         case bank_transaction(repo, transaction) do
+  #           {:ok, transaction} -> {:ok, {source, amount, transaction}}
+  #           {:error, changeset} -> {:error, :save_bank_transaction, changeset}
+  #         end
+
+  #       {source, destination, amount} ->
+  #         transaction = %{
+  #           value: amount,
+  #           description: description,
+  #           source_account_id: source.id,
+  #           destination_account_id: destination.id
+  #         }
+
+  #         case bank_transaction(repo, transaction) do
+  #           {:ok, transaction} ->
+  #             {:ok, {source, amount, transaction}}
+
+  #           {:error, changeset} ->
+  #             {:error, :save_bank_transaction, changeset}
+  #         end
+  #     end
+  #   end
+  # end
+
   defp save_bank_transaction(description) do
     fn repo, %{subtract_from_account: subtract_from_account} ->
-      case subtract_from_account do
-        {source, amount} ->
-          transaction = %{
-            value: amount,
-            description: description,
-            source_account_id: source.id
-          }
+      transaction = %{
+        value: subtract_from_account.amount,
+        source_account_id: subtract_from_account.source.id,
+        description: description,
+        destination_account_id: subtract_from_account.destination.id || nil,
+      }
 
-          case bank_transaction(repo, transaction) do
-            {:ok, transaction} -> {:ok, {source, amount, transaction}}
-            {:error, changeset} -> {:error, :save_bank_transaction, changeset}
-          end
-
-        {source, destination, amount} ->
-          transaction = %{
-            value: amount,
-            description: description,
-            source_account_id: source.id,
-            destination_account_id: destination.id
-          }
-
-          case bank_transaction(repo, transaction) do
-            {:ok, transaction} ->
-              {:ok, {source, amount, transaction}}
-
-            {:error, changeset} ->
-              {:error, :save_bank_transaction, changeset}
-          end
+      case bank_transaction(repo, transaction) do
+        {:ok, transaction} -> {:ok, {subtract_from_account.source, subtract_from_account.amount, transaction}}
+        {:error, changeset} -> {:error, :save_bank_transaction, changeset}
       end
     end
   end

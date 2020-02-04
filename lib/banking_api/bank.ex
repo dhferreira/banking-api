@@ -122,36 +122,34 @@ defmodule BankingApi.Bank do
 
   """
   def withdraw(source_account_id, amount) do
-    try do
-      amount = Decimal.cast(amount)
+    amount = Decimal.cast(amount)
 
-      # check if amount is valid (> 0.00)
-      if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
-        Batches.withdraw_money(source_account_id, amount)
-        |> Repo.transaction()
-        |> case do
-          {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
-            {:ok, %{account: updated_account, transaction: transaction}}
+    # check if amount is valid (> 0.00)
+    if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
+      Batches.withdraw_money(source_account_id, amount)
+      |> Repo.transaction()
+      |> case do
+        {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
+          {:ok, %{account: updated_account, transaction: transaction}}
 
-          {:error, _, _changeset} ->
-            {:error, :bad_request}
+        {:error, _, _changeset} ->
+          {:error, :bad_request}
 
-          {:error, _, err, _} ->
-            {:error, err}
-        end
-      else
-        {:error, :invalid_amount}
+        {:error, _, err, _} ->
+          {:error, err}
       end
-    rescue
-      err ->
-        if err.message do
-          Logger.error(err.message)
-        else
-          err |> IO.inspect() |> Logger.error()
-        end
-
-        {:error, :bad_request}
+    else
+      {:error, :invalid_amount}
     end
+  catch
+    err ->
+      if err.message do
+        Logger.error(err.message)
+      else
+        Logger.error("#{inspect err}")
+      end
+
+      {:error, :bad_request}
   end
 
   @doc """
@@ -182,36 +180,34 @@ defmodule BankingApi.Bank do
 
   """
   def transfer(source_account_id, destination_account_id, amount) do
-    try do
-      amount = Decimal.cast(amount)
+    amount = Decimal.cast(amount)
 
-      # check if amount is valid (> 0.00)
-      if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
-        Batches.transfer_money(source_account_id, destination_account_id, amount)
-        |> Repo.transaction()
-        |> case do
-          {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
-            {:ok, %{account: updated_account, transaction: transaction}}
+    # check if amount is valid (> 0.00)
+    if Decimal.cmp(amount, Decimal.cast(0.00)) === :gt do
+      Batches.transfer_money(source_account_id, destination_account_id, amount)
+      |> Repo.transaction()
+      |> case do
+        {:ok, %{save_bank_transaction: {updated_account, _amount, transaction}}} ->
+          {:ok, %{account: updated_account, transaction: transaction}}
 
-          {:error, _, _changeset} ->
-            {:error, :bad_request}
+        {:error, _, _changeset} ->
+          {:error, :bad_request}
 
-          {:error, _, err, _} ->
-            {:error, err}
-        end
-      else
-        {:error, :invalid_amount}
+        {:error, _, err, _} ->
+          {:error, err}
       end
-    rescue
-      err ->
-        if err.message do
-          Logger.error(err.message)
-        else
-          err |> IO.inspect() |> Logger.error()
-        end
-
-        {:error, :bad_request}
+    else
+      {:error, :invalid_amount}
     end
+  catch
+    err ->
+      if err.message do
+        Logger.error(err.message)
+      else
+        Logger.error("#{inspect err}")
+      end
+
+      {:error, :bad_request}
   end
 
   alias BankingApi.Bank.Transaction
@@ -331,7 +327,7 @@ defmodule BankingApi.Bank do
     Transaction.changeset(transaction, %{})
   end
 
-  def total_transactions() do
+  def total_transactions do
     query = from t in Transaction, select: sum(t.value)
 
     Repo.all(query)

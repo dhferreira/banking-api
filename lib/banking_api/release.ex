@@ -1,4 +1,7 @@
 defmodule BankingApi.Release do
+  @moduledoc """
+  Module to run migrations when using of Mix Release
+  """
   @app :banking_api
 
   def migrate do

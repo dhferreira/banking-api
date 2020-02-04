@@ -340,7 +340,7 @@ defmodule BankingApiWeb.UserController do
     summary("Update current user")
 
     description(
-      "Updates the current User logged in. Permission Needed: DEFAULT | ADMIN\nIf user's permission is not ADMIN, \"permission\" and \"is_active\" fields are not updated"
+      ~s(Updates the current User logged in. Permission Needed: DEFAULT | ADMIN\nIf user's permission is not ADMIN, "permission" and "is_active" fields are not updated)
     )
 
     operation_id("update_current_user")
@@ -572,16 +572,14 @@ defmodule BankingApiWeb.UserController do
   end
 
   def signin(conn, body) do
-    try do
-      %{"email" => email, "password" => password} = body
+    %{"email" => email, "password" => password} = body
 
-      with {:ok, user, token} <- Guardian.authenticate(email, password) do
-        conn
-        |> put_status(:ok)
-        |> render("user.json", %{user: user, token: token})
-      end
-    rescue
-      _ -> {:error, :bad_request}
+    with {:ok, user, token} <- Guardian.authenticate(email, password) do
+      conn
+      |> put_status(:ok)
+      |> render("user.json", %{user: user, token: token})
     end
+  catch
+    _ -> {:error, :bad_request}
   end
 end

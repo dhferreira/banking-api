@@ -257,24 +257,22 @@ defmodule BankingApiWeb.AccountController do
   end
 
   def withdraw(conn, %{"amount" => amount}) do
-    try do
-      current_user = current_resource(conn)
+    current_user = current_resource(conn)
 
-      with {:ok, %{account: account, transaction: transaction}} <-
-             Bank.withdraw(current_user.account.id, amount) do
-        Logger.info("Account Withdraw - Sending email to client...")
-        render(conn, "show.json", %{account: account, transaction: transaction})
-      end
-    rescue
-      err ->
-        if err.message do
-          Logger.error(err.message)
-        else
-          err |> IO.inspect() |> Logger.error()
-        end
-
-        {:error, :bad_request}
+    with {:ok, %{account: account, transaction: transaction}} <-
+            Bank.withdraw(current_user.account.id, amount) do
+      Logger.info("Account Withdraw - Sending email to client...")
+      render(conn, "show.json", %{account: account, transaction: transaction})
     end
+  catch
+    err ->
+      if err.message do
+        Logger.error(err.message)
+      else
+        Logger.error("#{inspect err}")
+      end
+
+      {:error, :bad_request}
   end
 
   swagger_path :transfer do
@@ -331,24 +329,22 @@ defmodule BankingApiWeb.AccountController do
   end
 
   def transfer(conn, %{"destination_account_id" => destination_account_id, "amount" => amount}) do
-    try do
-      current_user = current_resource(conn)
-      source_account_id = current_user.account.id
+    current_user = current_resource(conn)
+    source_account_id = current_user.account.id
 
-      with {:ok, %{account: account, transaction: transaction}} <-
-             Bank.transfer(source_account_id, destination_account_id, amount) do
-        Logger.info("Transfer Money Between Accounts - Sending email to clients...")
-        render(conn, "show.json", %{account: account, transaction: transaction})
-      end
-    rescue
-      err ->
-        if err.message do
-          Logger.error(err.message)
-        else
-          err |> IO.inspect() |> Logger.error()
-        end
-
-        {:error, :bad_request}
+    with {:ok, %{account: account, transaction: transaction}} <-
+            Bank.transfer(source_account_id, destination_account_id, amount) do
+      Logger.info("Transfer Money Between Accounts - Sending email to clients...")
+      render(conn, "show.json", %{account: account, transaction: transaction})
     end
+  catch
+    err ->
+      if err.message do
+        Logger.error(err.message)
+      else
+        Logger.error("#{inspect err}")
+      end
+
+      {:error, :bad_request}
   end
 end
