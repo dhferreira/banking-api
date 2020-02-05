@@ -1,6 +1,6 @@
 defmodule BankingApi.Auth.Guardian do
   @moduledoc """
-  Guardian functions for authentication
+  Guardian functions for user authentication
   """
   use Guardian, otp_app: :banking_api
 
@@ -53,7 +53,7 @@ defmodule BankingApi.Auth.Guardian do
   def authenticate(email, password) do
     user = Auth.get_user_by_email(email)
 
-    if user do
+    if user && user.is_active do
       case Argon2.check_pass(user, password) do
         {:error, _msg} ->
           {:error, :unauthorized}
