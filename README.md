@@ -6,7 +6,7 @@ Example of Banking API using Elixir language.
 
 - Docker Compose: https://docs.docker.com/compose/install/
 
-## Running Development Environment
+## Setup Development Environment
 
 1. Clone this repository
 2. Run `cd banking_api/` (or whatever folder's name you chose)
