@@ -27,7 +27,7 @@ If you want to run the automated tests in this API:
 
 ### Deploying to Heroku
 
-1. Create a new app in Heroku
+1. Create a new app in [`Heroku`](https://www.heroku.com)
 2. Set Heroku stack to `container`
 3. Set Config Vars:
 - `DATABASE_URL`: productions postgres database url (example: `ecto://USER:PASSWORD@HOST/DATABASE`)
