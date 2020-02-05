@@ -24,11 +24,11 @@ If you want to run the automated tests in this API, after run Development Enviro
 
 ## Live Demo (Production)
 
-Access: [`live_demo_banking_api`](https://banking-api-elixir.herokuapp.com/api)
+Access: [`Live Demo`](https://banking-api-elixir.herokuapp.com/api)
 
 ## API Documentation
 
-Documentation: [`api_documentation`](https://banking-api-elixir.herokuapp.com/doc)
+Documentation: [`Api Documentation`](https://banking-api-elixir.herokuapp.com/doc)
 
 ## Learn more
 
