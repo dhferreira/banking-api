@@ -5,4 +5,4 @@ build:
     docker:
         web: ./Dockerfile
 run:
-    web: bin/banking_api start
+    web: ./entrypoint.sh
