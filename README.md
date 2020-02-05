@@ -23,6 +23,19 @@ If you want to run the automated tests in this API:
 1. Run Development Environment as above.
 2. Run `docker exec -it {DOCKER_CONTAINER_NAME || DOCKER_CONTAINER_ID} mix test`
 
+## Deployment
+
+### Deploying to Heroku
+
+1. Create a new app in Heroku
+2. Set Heroku stack to `container`
+3. Set Config Vars:
+- `DATABASE_URL`: productions postgres database url (example: `ecto://USER:PASSWORD@HOST/DATABASE`)
+- `RENDER_EXTERNAL_HOSTNAME`: your app host (example: `app_name.herokuapp.com`)
+- `SECRET_KEY_BASE`: app secret (from `mix phx.gen.secret`)
+4. Fill out `ENV SECRET_KEY_BASE=` in **Dockerfile** with the same secret from *Config Vars*
+5. Push the repository files to your Heroku app
+
 ## Live Demo (Production)
 
 Access: [`Live Demo`](https://banking-api-elixir.herokuapp.com/api)
