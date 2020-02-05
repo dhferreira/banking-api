@@ -12,6 +12,20 @@ Example of Banking API using Elixir language.
 
 Now you can access the api through [`localhost:4000`](http://localhost:4000)
 
+## Running Tests
+
+If you want to run the tests in this API, after run Development Environment, in you running Docker container:
+
+Run `mix test`
+
+## Live Demo (Production)
+
+Access: [`live_demo_banking_api`](https://banking-api-elixir.herokuapp.com/api)
+
+## API Documentation
+
+Documentation: [`api_documentation`](https://banking-api-elixir.herokuapp.com/doc)
+
 ## Learn more
 
 - Official website: http://www.phoenixframework.org/
