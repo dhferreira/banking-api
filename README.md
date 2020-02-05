@@ -16,9 +16,11 @@ Now you can access the api through [`localhost:4000`](http://localhost:4000)
 
 ## Running Tests
 
-If you want to run the automated tests in this API, after run Development Environment, in you running Docker container:
+If you want to run the automated tests in this API, after run Development Environment
 
-Run `mix test`
+1. Run Development Environment
+2. Inside the running Docker's Container
+3. Run `mix test`
 
 ## Live Demo (Production)
 
