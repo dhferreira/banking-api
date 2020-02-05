@@ -327,12 +327,40 @@ defmodule BankingApi.Bank do
     Transaction.changeset(transaction, %{})
   end
 
+  @doc """
+  Returns Sum of Transactions value field.
+
+  If no transactions, return nil
+
+  ## Examples
+
+      iex> total_transactions()
+      [1150.0]
+
+      iex> total_transactions()
+      nil
+
+  """
   def total_transactions do
     query = from t in Transaction, select: sum(t.value)
 
     Repo.all(query)
   end
 
+  @doc """
+  Returns Array of Sums of Transactions value grouped by given period in [day, month, year].
+
+  If no transactions, return []
+
+  ## Examples
+
+      iex> total_transactions(:day)
+      [{date: "2020-02-02", total: 125.20}, ...]
+
+      iex> total_transactions(:day)
+      []
+
+  """
   def total_transactions(period) do
     query =
       Transaction

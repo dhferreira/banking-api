@@ -1,6 +1,6 @@
 defmodule BankingApi.Auth.Guardian do
   @moduledoc """
-  Guardian functions for user authentication
+  Guardian functions for User's authentication
   """
   use Guardian, otp_app: :banking_api
 
@@ -14,6 +14,9 @@ defmodule BankingApi.Auth.Guardian do
     {:ok, sub}
   end
 
+  @doc """
+  Get user from given token
+  """
   def resource_from_claims(%{"sub" => id}) do
     case Auth.get_user(id) do
       nil -> {:erro, :resource_not_found}
@@ -21,6 +24,9 @@ defmodule BankingApi.Auth.Guardian do
     end
   end
 
+  @doc """
+  Descodes permissions from given token
+  """
   def decode_permissions_from_claims(%{"perms" => perms}) do
     if perms do
       perms
@@ -29,6 +35,9 @@ defmodule BankingApi.Auth.Guardian do
     end
   end
 
+  @doc """
+  Check if logged in user has all permissions needed
+  """
   def all_permissions?(user_permissions, check_permissions) do
     Enum.all?(
       Map.keys(check_permissions),
@@ -50,6 +59,9 @@ defmodule BankingApi.Auth.Guardian do
     )
   end
 
+  @doc """
+  Authenticates given credentials, checking if email and password are corrected and user is active.
+  """
   def authenticate(email, password) do
     user = Auth.get_user_by_email(email)
 

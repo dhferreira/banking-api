@@ -1,6 +1,6 @@
 defmodule BankingApiWeb.Auth.PipelineAuth do
   @moduledoc """
-  Pipeline used for routes that need authentication (Bearer)
+  Pipeline used for routes that need authentication (Bearer) with any permission
   """
   use Guardian.Plug.Pipeline,
     otp_app: :banking_api,

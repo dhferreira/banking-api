@@ -1,6 +1,17 @@
 defmodule BankingApi.Auth.User do
   @moduledoc """
   User Schema
+
+  Fields:
+  - id: binary_id | UUID
+  - email: string, not nil
+  - password_hash: string, hash from vitual field password (min-lenght 6)
+  - name: string, not nil
+  - permission: string, options: [ADMIN, DEFAULT]
+  - is_active: boolean
+  - account: %Account{}
+  - inserted_at: timestamp,
+  - updated_at: timestamp
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -20,7 +31,9 @@ defmodule BankingApi.Auth.User do
     timestamps()
   end
 
-  @doc false
+  @doc """
+  Prepares changeset for user creation
+  """
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:name, :email, :is_active, :password, :permission])
@@ -34,7 +47,9 @@ defmodule BankingApi.Auth.User do
     |> put_password_hash()
   end
 
-  @doc false
+  @doc """
+  Prepares changeset for user updating
+  """
   def changeset_update(user, attrs) do
     user
     |> cast(attrs, [:name, :email, :is_active, :password, :permission])
@@ -48,12 +63,14 @@ defmodule BankingApi.Auth.User do
     |> put_password_hash()
   end
 
+  # Sanitaze data before validations
   defp sanitize(changeset) do
     permission = get_field(changeset, :permission) || ""
 
     put_change(changeset, :permission, String.upcase(permission))
   end
 
+  # Hashes given password string
   defp put_password_hash(
          %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
        ) do
@@ -64,6 +81,7 @@ defmodule BankingApi.Auth.User do
     changeset
   end
 
+  # Validate if given fields are not nil
   defp validate_not_nil(changeset, fields) do
     Enum.reduce(fields, changeset, fn field, changeset ->
       if get_field(changeset, field) == nil do

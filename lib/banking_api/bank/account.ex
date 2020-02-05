@@ -1,6 +1,15 @@
 defmodule BankingApi.Bank.Account do
   @moduledoc """
   Account Shema
+
+  Fields:
+  - id: binary_id | UUID,
+  - balance: decimal >= 0.00,
+  - source_transaction: %Transaction{}
+  - destination_transaction: %Transaction{}
+  - user: %User{}
+  - inserted_at: timestamp,
+  - updated_at: timestamp
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -18,7 +27,9 @@ defmodule BankingApi.Bank.Account do
     timestamps()
   end
 
-  @doc false
+  @doc """
+  Prepares changeset for account creation
+  """
   def changeset(account, attrs) do
     account
     |> cast(attrs, [:balance, :user_id])
@@ -28,7 +39,9 @@ defmodule BankingApi.Bank.Account do
     |> balance_to_decimal()
   end
 
-  @doc false
+  @doc """
+  Prepares changeset for account updating
+  """
   def changeset_update(user, attrs) do
     user
     |> cast(attrs, [:balance, :user_id])
@@ -37,6 +50,7 @@ defmodule BankingApi.Bank.Account do
     |> balance_to_decimal()
   end
 
+  # Converte balance number to Decimal
   defp balance_to_decimal(%Ecto.Changeset{valid?: true, changes: %{balance: balance}} = changeset) do
     balance =
       balance
@@ -50,6 +64,7 @@ defmodule BankingApi.Bank.Account do
     changeset
   end
 
+  # Validates given fields if they are not nil
   defp validate_not_nil(changeset, fields) do
     Enum.reduce(fields, changeset, fn field, changeset ->
       if get_field(changeset, field) == nil do

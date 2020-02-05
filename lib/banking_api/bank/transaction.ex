@@ -1,6 +1,15 @@
 defmodule BankingApi.Bank.Transaction do
   @moduledoc """
   Transaction Schema
+
+  Fields:
+  - id: binary_id | UUID,
+  - value: decimal, not nil
+  - source_account_id: binary_id | UUID from %Account{}, not nil
+  - destination_account_id: binary_id | UUID from %Account{}
+  - description: string, not nil
+  - inserted_at: timestamp,
+  - updated_at: timestamp
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -15,25 +24,13 @@ defmodule BankingApi.Bank.Transaction do
     timestamps()
   end
 
-  @doc false
+  @doc """
+  Prepares changeset for transaction creation
+  """
   def changeset(transaction, attrs) do
     transaction
     |> cast(attrs, [:description, :value, :source_account_id, :destination_account_id])
     |> validate_required([:description, :value, :source_account_id])
     |> validate_number(:value, message: "invalid value")
   end
-
-  # defp value_to_decimal(
-  #       %Ecto.Changeset{valid?: true, changes: %{value: value}} = changeset
-  #     ) do
-  #   value =
-  #       value
-  #       |> Decimal.new()
-  #       |> Decimal.round(2)
-  #   change(changeset, %{value: value})
-  # end
-
-  # defp value_to_decimal(changeset) do
-  #   changeset
-  # end
 end
