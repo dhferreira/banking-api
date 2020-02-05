@@ -10,6 +10,7 @@ Example of Banking API using Elixir language.
 
 1. Clone this repository
 2. Run `cd banking_api/` (or whatever folder's name you chose)
+3. Rename the file ".env_example" to ".env", and fill out the variables with their values. (secret from `mix gen.secret`, and database's urls)
 3. Run `docker-compose up --build` at the project's root directory
 
 Now you can access the api through [`localhost:4000`](http://localhost:4000)
