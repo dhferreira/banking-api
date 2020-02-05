@@ -5,4 +5,4 @@ build:
     docker:
         web: ./Dockerfile
 run:
-    web: ./entrypoint.sh
+    web: bin/banking_api eval BankingApi.Release.migrate && bin/banking_api start
