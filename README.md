@@ -36,14 +36,6 @@ If you want to run the automated tests in this API:
 4. Fill out `ENV SECRET_KEY_BASE=` in **Dockerfile** with the same secret from *Config Vars*
 5. Push the repository files to your Heroku app
 
-## Live Demo (Production)
-
-Access: [`Live Demo`](https://banking-api-elixir.herokuapp.com/api)
-
-## API Documentation
-
-Documentation: [`Api Documentation`](https://banking-api-elixir.herokuapp.com/doc)
-
 ## Learn more
 
 - Official website: http://www.phoenixframework.org/
